@@ -2,7 +2,7 @@
 
 | # | Theme | Section | Status |
 |---|-------|---------|--------|
-| 1 | Data | Persistent market-data system | Stub |
+| 1 | Data | Persistent market-data system | Implemented (persist_dataset + test, commit 582e1a5) |
 | 2 | Data | WebSocket ingestion | Stub |
 | 3 | Data | Order-book model | Stub |
 | 4 | Features | Feature engineering | Stub |

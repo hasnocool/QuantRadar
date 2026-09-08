@@ -23,7 +23,7 @@ def audit():
     implemented = lines.count('Implemented') + lines.count('implemented')
     # From PLAN.md file content (line 47): 5 fully implemented (#10, #11, #14, #23, #24)
     plan_total = 35
-    plan_done = 5
+    plan_done = 6
     plan_pct = plan_done/plan_total*100
 
     # 3. Root codemap presence

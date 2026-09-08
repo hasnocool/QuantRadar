@@ -34,12 +34,14 @@ Objective: audit/remaining concrete gaps in project root. Source: session inspec
 - Cargo.toml 66 members; cargo workspace builds
 - reports files present (markets valid JSON list of 1391)
 
-## Next-round actions needed to close
-- Populate at least core sub-codemaps (core, cli) or document why deferred
-- Fill python/quantaradar/codemap.md (design/flow sections)
-- Commit or discard uncommitted cli/replay edits; complete replay dataset integration or document stub status
-- Expand audit_coverage to cover CLI variants / property tests if required by objective
-- Confirm PLAN.md 5 implemented sections align with actual crate tests (gap between presence and quality)
+## Round 4 resolution (current session)
+- All 66 sub-codomaps filled (0 empty stubs); audit confirms 66/66 = 100%.
+- Replay dataset integration restored (`replay_full_dataset_integration`) and builds; commit `582e1a5`.
+- Python templates filled (`python/quantaradar/codemap.md`, `python/codemap.md`); commit `8107d96`.
+- News ingestion fix committed (`a9e1a1f`); uncommitted count = 0 (final commit `5bc0542`).
+- Persistent #1 implemented in `crates/standalone/persistent-data/src/lib.rs` (`persist_dataset()` + test); PLAN.md table and audit_updated to 6/35.
+- PLAN.md line 50 updated; table line 5 synchronized; audit_coverage.py `plan_done` corrected to 6.
+Remaining (not claimed complete): PLAN.md still shows 6/35 rather than 35/35; deep test/load quality not fully verified.
 
 ## Round 2 additional evidence (verified in session)
 - Python stub quote (python/quantaradar/codemap.md lines 3-19): every section is "<!-- Fixer: Fill ... -->" — 0 content; 19 lines total, same for python/codemap.md.
