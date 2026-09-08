@@ -7,9 +7,12 @@ rust-version.workspace = true
 license.workspace = true
 [dependencies]
 anyhow.workspace = true
+chrono.workspace = true
+futures.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
 quantaradar-core = { path = "../core" }
 urlencoding = "2"
