@@ -52,9 +52,35 @@ def audit():
     print("  cli: lib missing initially → fixed (added lib.rs + test)")
     print("  strategy_dsl: tests missing initially → fixed (added tests/basic.rs)")
     print("  All 66 crates now PASS per session audit.")
+    # 5. Sub-codemap content check (empty-stub detection)
+    sub_cmaps = [f for f in os.popen('ls crates/shared/*/codemap.md crates/standalone/*/codemap.md 2>/dev/null').read().split() if f.endswith('.md')]
+    empty_stubs = sum(1 for p in sub_cmaps if '<!-- Fixer:' in open(p).read() or open(p).read().count('#') < 3)
+    sub_cmap_pct = (len(sub_cmaps)-empty_stubs)/len(sub_cmaps)*100 if sub_cmaps else 0
+
+    # 6. CLI variant coverage (lib + binary)
+    cli_path = 'crates/shared/cli/src/lib.rs'
+    cli_variants = len([line for line in open(cli_path).read().splitlines() if 'CliVariantMode' in line or 'execute_command' in line]) if os.path.exists(cli_path) else 0
+
+    # 7. Property/load test presence
+    prop_tests = 0
+    for root, dirs, files in os.walk('crates'):
+        for f in files:
+            if f.endswith('.rs') and ('property' in f or 'load' in f or 'scale' in f):
+                prop_tests += 1
+
+    # 8. Git commit / uncommitted check (session only; not persistent)
+    git_uncommitted = os.popen("git status --short | wc -l").read().strip()
+
+    print("-" * 60)
+    print("Expanded verification (added in round 4):")
+    print(f"Sub-codemap content (non-empty):            {len(sub_cmaps)-empty_stubs}/{len(sub_cmaps)} = {sub_cmap_pct:.0f}%")
+    print(f"CLI variants (dispatch + execution):         {cli_variants}")
+    print(f"Property/load test files:                    {prop_tests}")
+    print(f"Uncommitted changes (git status count):      {git_uncommitted}")
     print("-" * 60)
     print("NOT verified by this script: deeper test quality (only presence),")
     print("  git commit coverage, property/load tests at scale, CLI variants.")
+    print("Note: sub-codemap content, CLI variants, and property/load presence now tracked.")
     print("=" * 60)
 
 if __name__ == '__main__':
