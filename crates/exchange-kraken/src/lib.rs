@@ -1,4 +1,4 @@
-// QuantRadar Kraken REST client for public market discovery and OHLC retrieval.
+// QuantRadar Kraken REST and WebSocket market-data clients.
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use quantaradar_core::{Bar, MarketId};
@@ -6,6 +6,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use std::{collections::HashMap,time::Duration};
 use tokio::time::sleep;
+pub mod ws;
 #[derive(Debug,Clone)]pub struct KrakenClient{http:Client,base_url:String,min_interval:Duration}
 impl Default for KrakenClient{fn default()->Self{Self{http:Client::new(),base_url:"https://api.kraken.com".into(),min_interval:Duration::from_millis(350)}}}
 impl KrakenClient{async fn get_json<T:for<'de>Deserialize<'de>>(&self,path:&str)->Result<T>{sleep(self.min_interval).await;Ok(self.http.get(format!("{}{}",self.base_url,path)).send().await?.error_for_status()?.json::<T>().await?)}pub async fn asset_pairs(&self)->Result<Vec<KrakenPair>>{let r:KrakenResponse<HashMap<String,PairRaw>>=self.get_json("/0/public/AssetPairs").await?;Ok(r.result.into_iter().filter_map(|(symbol,p)|{let(base,quote)=(p.base?,p.quote?);Some(KrakenPair{symbol,base,quote,wsname:p.wsname.unwrap_or_default(),status:p.status.unwrap_or_else(||"online".into())})}).collect())}pub async fn ohlc(&self,pair:&str,interval:u32)->Result<Vec<Bar>>{let path=format!("/0/public/OHLC?pair={}&interval={}",urlencoding::encode(pair),interval);let r:KrakenResponse<HashMap<String,Vec<Vec<serde_json::Value>>>>=self.get_json(&path).await?;let rows=r.result.get(pair).or_else(||r.result.values().next()).context("Kraken returned no OHLC rows")?;let mut out=Vec::with_capacity(rows.len());for row in rows{if row.len()<8{continue}let ts=row[0].as_i64().context("invalid timestamp")?;out.push(Bar{ts:DateTime::<Utc>::from_timestamp(ts,0).context("invalid timestamp")?,open:num(&row[1])?,high:num(&row[2])?,low:num(&row[3])?,close:num(&row[4])?,volume:num(&row[6])?,trades:row[7].as_f64()});}Ok(out)}pub async fn discover_spot(&self)->Result<Vec<MarketId>>{Ok(self.asset_pairs().await?.into_iter().filter(|p|p.status=="online").map(|p|MarketId{exchange:"kraken".into(),symbol:if p.wsname.is_empty(){p.symbol}else{p.wsname},base:p.base,quote:p.quote}).collect())}}
