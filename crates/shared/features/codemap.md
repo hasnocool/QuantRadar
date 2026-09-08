@@ -1,19 +1,9 @@
 # crates/features/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
-
+Deterministic technical features (FeatureRow, feature store, feature-engine pipeline).
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
-
+Polars/duckdb-backed; deterministic calculations; no ML within this crate.
 ## Flow
-
-<!-- How does data/control flow through this module? -->
-
+Market data → feature computation → feature store → screening/backtest.
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by regime, screening, backtest crates; depends on core.

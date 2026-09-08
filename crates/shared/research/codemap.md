@@ -1,19 +1,13 @@
 # crates/research/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Breadth, ranking, relative-strength, PCA, event studies.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+PCA engine, ranking algorithms, event-study statistics.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Market data → ranking/PCA → research reports → promotion gates.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by screening, champion/challenger; depends on core, features.

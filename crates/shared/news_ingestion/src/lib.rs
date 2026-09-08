@@ -43,10 +43,12 @@ pub mod alerting;
 
 pub struct IngestionConfig {
     pub reddit_subreddits: Vec<String>,
+    pub enable_reddit: bool,
     pub google_query: String,
     pub news_api_key: Option<String>,
     pub news_api_query: String,
     pub rpc_url: String,
+    pub onchain_address: String,
     pub storage_path: String,
 }
 
@@ -54,10 +56,12 @@ impl Default for IngestionConfig {
     fn default() -> Self {
         Self {
             reddit_subreddits: vec!["CryptoCurrency".into(), "Bitcoin".into()],
+            enable_reddit: false,
             google_query: "cryptocurrency market".into(),
             news_api_key: None,
             news_api_query: "cryptocurrency".into(),
-            rpc_url: "http://localhost:8545".into(),
+            rpc_url: "https://eth.llamarpc.com".into(),
+            onchain_address: "0x0000000000000000000000000000000000000000".into(),
             storage_path: "data/news".into(),
         }
     }
@@ -68,32 +72,49 @@ pub async fn run(config: IngestionConfig) -> anyhow::Result<()> {
     
     println!("Starting news ingestion pipeline");
     
-    let rss_collector = RedditRssCollector::new(config.reddit_subreddits.clone());
-    let rss_items = rss_collector.collect().await?;
-    println!("Reddit RSS collected {} items", rss_items.len());
-    
-    let json_collector = RedditJsonCollector::new(config.reddit_subreddits.clone());
-    let json_items = json_collector.collect().await?;
-    println!("Reddit JSON collected {} items", json_items.len());
+    let mut rss_items = Vec::new();
+    let mut json_items = Vec::new();
+    if config.enable_reddit {
+        let rss_collector = RedditRssCollector::new(config.reddit_subreddits.clone());
+        rss_items = match rss_collector.collect().await {
+            Ok(v) => { println!("Reddit RSS collected {} items", v.len()); v },
+            Err(e) => { eprintln!("Reddit RSS error: {}", e); Vec::new() }
+        };
+        let json_collector = RedditJsonCollector::new(config.reddit_subreddits.clone());
+        json_items = match json_collector.collect().await {
+            Ok(v) => { println!("Reddit JSON collected {} items", v.len()); v },
+            Err(e) => { eprintln!("Reddit JSON error: {}", e); Vec::new() }
+        };
+    } else {
+        println!("Reddit disabled, falling back to Google News + NewsAPI");
+    }
     
     let google_collector = GoogleNewsCollector::new(config.google_query.clone());
-    let google_items = google_collector.collect().await?;
-    println!("Google News collected {} items", google_items.len());
+    let google_items = match google_collector.collect().await {
+        Ok(v) => { println!("Google News collected {} items", v.len()); v },
+        Err(e) => { eprintln!("Google News error: {}", e); Vec::new() }
+    };
     
     let mut api_items = Vec::new();
     if let Some(key) = config.news_api_key {
         let api_collector = NewsApiCollector::new(key, config.news_api_query.clone());
-        api_items = api_collector.collect().await?;
-        println!("NewsAPI collected {} items", api_items.len());
+        match api_collector.collect().await {
+            Ok(v) => { println!("NewsAPI collected {} items", v.len()); api_items = v; },
+            Err(e) => { eprintln!("NewsAPI error: {}", e); }
+        }
     } else {
         println!("NewsAPI skipped: no key");
     }
     
     let rpc = OnChainRpcClient::new(config.rpc_url.clone());
-    let latest = rpc.get_latest_block().await.unwrap_or(0);
-    println!("On-chain latest block: {}", latest);
-    let events = rpc.get_logs("0x0000000000000000000000000000000000000000", latest.saturating_sub(100), latest).await.unwrap_or_default();
-    println!("On-chain events collected {}", events.len());
+    let latest = match rpc.get_latest_block().await {
+        Ok(b) => { println!("On-chain latest block: {}", b); b },
+        Err(e) => { eprintln!("On-chain block error: {}", e); 0 }
+    };
+    let events = match rpc.get_logs("0x0000000000000000000000000000000000000000", latest.saturating_sub(100), latest).await {
+        Ok(v) => { println!("On-chain events collected {}", v.len()); v },
+        Err(e) => { eprintln!("On-chain logs error: {}", e); Vec::new() }
+    };
     
     let storage = NewsStorage::new(config.storage_path.clone());
     let all_news = [rss_items, json_items, google_items, api_items].concat();

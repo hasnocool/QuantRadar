@@ -1,19 +1,13 @@
 # crates/screeners/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Explainable screener families (7 families, composite score, DSL contracts).
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Screener DAG with explainable scores; DSL per ARCHITECTURE.md.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Signals → screener families → composite score → candidate list.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by pipeline, strategy DSL; depends on core, features, regime.

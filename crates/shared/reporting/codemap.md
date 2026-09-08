@@ -1,19 +1,13 @@
 # crates/reporting/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Machine-readable reports (backtest.json, markets.json, scan.json, screen.json).
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+JSON schema aligned with backtest/screen outputs.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Backtest results → machine-readable reports → storage/review.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by CLI, dashboard; consumes backtest/screen outputs.

@@ -1,19 +1,13 @@
 # crates/backtest/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Cost-aware backtesting (backtest engine, walk-forward, robustness, promotion gates).
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Realistic execution with cost modeling; expanding WFO framework.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Strategy candidates → backtest with costs → robustness → promotion.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by portfolio, paper trading; depends on core, features, regime, screeners.

@@ -1,19 +1,13 @@
 # crates/core/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Shared domain models: Direction, OrderSide, EventKind, timestamp normalization, and immutable market-data contracts used by ingestion, features, regime, screening, and backtest crates.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Strict Rust types (`thiserror`/`anyhow`); serde for serialization; no business logic — pure data/contracts. Key enums: Direction, CliMode, RegimeState.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Exchange ingestion → core contracts → feature/regime/screening consumers → backtest.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by `quantaradar-core` (lib) and all downstream crates via `crates/shared/core/src/lib.rs`.

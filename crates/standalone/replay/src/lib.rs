@@ -64,7 +64,7 @@ pub fn replay_full_with_sequence(dataset_path: &str) -> anyhow::Result<(Vec<Stri
 /// Final replay/rebuild with full dataset integration
 pub fn replay_full_dataset_integration(dataset_path: &str) -> anyhow::Result<(Vec<String>, bool, Vec<u64>)> {
     let (lines, valid) = replay_full_with_sequence(dataset_path)?;
-    let sequences = replay_delta_sequence(&(0..lines.len() as u64).map(|i| (i, lines[i].clone())).collect::<Vec<_>>());
+    let sequences = replay_delta_sequence(&(0..lines.len()).map(|i| (i as u64, lines[i].clone())).collect::<Vec<_>>());
     Ok((lines, valid, sequences))
 }
 

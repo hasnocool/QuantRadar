@@ -1,19 +1,13 @@
 # crates/cli/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+CLI entry `quantaradar` (discover, screen, fetch, backtest, monitor) dispatching to core and strategy modules.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Clap-based argument parsing; `CliMode` and `CliVariantMode` dispatch; minimal logic — delegates to library crates.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+User command → cli parse → `CliMode::dispatch()` → library call → output.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Binary target `quantaradar`; library target `quantaradar` (cli); depends on core, features, regime, screeners.

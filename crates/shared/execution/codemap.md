@@ -1,19 +1,13 @@
 # crates/execution/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Risk controls + paper execution (execution orders, paper-state machine, reconciliation).
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Paper-state machine with risk limits; order execution tracking.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Signals → execution orders → paper state → reconciliation.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Depends on portfolio, backtest; produces paper-trading state.

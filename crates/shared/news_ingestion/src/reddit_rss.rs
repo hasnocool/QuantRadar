@@ -1,27 +1,8 @@
 use anyhow::Result;
 use reqwest::Client;
-use serde::Deserialize;
 use chrono::{DateTime, Utc};
+use regex::Regex;
 use crate::{NewsItem, NewsSource};
-
-#[derive(Debug, Deserialize)]
-struct RssItem {
-    title: String,
-    link: String,
-    guid: Option<String>,
-    pubDate: Option<String>,
-    description: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct RssChannel {
-    item: Vec<RssItem>,
-}
-
-#[derive(Debug, Deserialize)]
-struct RssRoot {
-    channel: RssChannel,
-}
 
 pub struct RedditRssCollector {
     client: Client,
@@ -35,23 +16,33 @@ impl RedditRssCollector {
 
     pub async fn collect(&self) -> Result<Vec<NewsItem>> {
         let mut items = Vec::new();
+        let item_re = Regex::new(r"<item>(?s)(.*?)</item>")?;
+        let title_re = Regex::new(r"<title>(?s)<\!\[CDATA\[(.*?)\]\]>|(?s)<title>(.*?)</title>")?;
+        let link_re = Regex::new(r"<link>(?s)(.*?)</link>")?;
+        let guid_re = Regex::new(r"<guid>(?s)(.*?)</guid>")?;
+        let date_re = Regex::new(r"<pubDate>(?s)(.*?)</pubDate>")?;
+        let desc_re = Regex::new(r"<description>(?s)<\!\[CDATA\[(.*?)\]\]>|(?s)<description>(.*?)</description>")?;
         for sub in &self.subreddits {
             let url = format!("https://www.reddit.com/r/{}/.rss", sub);
             let resp = self.client.get(&url).header("User-Agent", "QuantRadar/0.1").send().await?;
             if !resp.status().is_success() { continue; }
-            let rss: RssRoot = resp.json().await?;
-            for it in rss.channel.item {
-                let published = it.pubDate
-                    .and_then(|s| DateTime::parse_from_rfc2822(&s).ok())
-                    .map(|dt| dt.with_timezone(&Utc))
-                    .unwrap_or_else(Utc::now);
+            let text = resp.text().await?;
+            for caps in item_re.captures_iter(&text) {
+                let block = caps.get(1).map_or("", |m| m.as_str());
+                let title = title_re.captures(block).and_then(|c| c.get(1).or_else(|| c.get(2))).map_or("", |m| m.as_str()).trim().to_string();
+                let link = link_re.captures(block).and_then(|c| c.get(1)).map_or("", |m| m.as_str()).trim().to_string();
+                let guid = guid_re.captures(block).and_then(|c| c.get(1)).map_or("", |m| m.as_str()).trim().to_string();
+                let date_str = date_re.captures(block).and_then(|c| c.get(1)).map_or("", |m| m.as_str()).trim().to_string();
+                let desc = desc_re.captures(block).and_then(|c| c.get(1).or_else(|| c.get(2))).map_or("", |m| m.as_str()).trim().to_string();
+                if title.is_empty() { continue; }
+                let published = DateTime::parse_from_rfc2822(&date_str).ok().map(|dt| dt.with_timezone(&Utc)).unwrap_or_else(Utc::now);
                 items.push(NewsItem {
-                    id: it.guid.unwrap_or_else(|| it.link.clone()),
+                    id: if guid.is_empty() { link.clone() } else { guid },
                     source: NewsSource::RedditRss,
-                    title: it.title,
-                    url: it.link,
+                    title,
+                    url: link,
                     published_at: published,
-                    content: it.description,
+                    content: if desc.is_empty() { None } else { Some(desc) },
                     sentiment_score: 0.0,
                     symbols: vec![],
                 });

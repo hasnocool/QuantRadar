@@ -1,19 +1,13 @@
 # crates/exchange-kraken/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Kraken REST + WebSocket ingestion; normalization to core contracts.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+REST polling + WebSocket ingestion; normalization layer.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Kraken API → ingestion/normalization → core contracts.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Produces market data for core; depends on core.

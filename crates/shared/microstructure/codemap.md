@@ -1,19 +1,13 @@
 # crates/microstructure/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Order-book/trade-flow/liquidity analytics (liquidity metrics, order-book models).
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Order-book event processing; liquidity feature computation.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Order-book events → liquidity metrics → feature augmentation.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by feature engine and regime; depends on core.

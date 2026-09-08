@@ -1,19 +1,13 @@
 # crates/regime/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Market-state classifier (regime confidence, regime detector, RegimeThresholds).
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Classifier with typed confidence scores; integrates with feature engine outputs.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Features → regime classification → confidence → regime-scaled screening/backtest.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by screeners, portfolio, backtest; depends on core, features.
