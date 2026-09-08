@@ -1707,6 +1707,7 @@ version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "quantaradar-core",
  "serde",
  "serde_json",
 ]
@@ -1861,6 +1862,14 @@ dependencies = [
  "chrono",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "quantaradar-logging"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "tokio",
 ]
 
 [[package]]

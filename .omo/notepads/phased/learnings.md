@@ -1,0 +1,36 @@
+# Learnings — phased plan
+
+- First phase (Data Foundation) establishes typed domain (Direction/OrderSide/EventKind enums) and observation schema (ARCHITECTURE.md:42)
+- Replay engine requires manifest + raw archive determinism: same input + same commit = same result
+- Sequence validation uses WebSocket sequence_numbers; gaps trigger replay from last known sequence
+- Data quality validator checks: timestamp monotonicity, symbol consistency, price >= 0, volume >= 0, spread >= 0
+- FeatureRow features must have lookback, minimum_history, availability_delay to prevent future leakage
+- Regime engine supports 11 variants across 3 dimensions (trend_aligned, vol_aligned, confidence)
+- Microstructure analytics: spread_bps, depth_imbalance, executable_impact_*, liquidity_score
+- Cross-sectional ranking pipeline: raw features → winsorization → z-score → sector neutralization → factor construction → ensemble scoring → regime-conditioned rank
+- PCA first component captures market factor; cluster-aware position limits for highly correlated assets
+- Signal ensemble: weighted average of family scores, weighted by regime compatibility
+- Backtest engine: fees, slippage (spread + impact), partial fills, liquidity gate, portfolio realism
+- Expanding WFO: TRAIN → TEST → move forward → TRAIN → TEST; aggregate OOS across folds
+- Robustness testing: parameter perturbation (±20%), transaction-cost perturbation, trade-order randomization, regime segmentation, cross-asset testing
+- Anti-overfitting stack: walk-forward → OOS → parameter perturbation → cost perturbation → bootstrap → Monte Carlo → trade-order randomization → regime testing → cross-asset → multiple-hypothesis correction
+- Champion/challenger promotion: OOS Sharpe > champion, max drawdown < champion, profit factor > 1.5, robustness pass rate > 70%
+- Phase 1 Data Foundation: typed domain model with Direction(Long/Short/Flat), OrderSide(Buy/Sell), EventKind(Breakout/Breakdown/VolumeAnomaly/VolatilitySpike/RegimeChange) enums replacing all free-form strings. All signals, orders, and events now use strongly typed enums.
+- Portfolio optimizer: inputs = signals → expected returns → correlation matrix → liquidity → volatility; outputs = position weights
+- Risk engine: dynamic scaling by regime (normal=100%, high vol=50%, extreme=25%, dislocation=0%)
+- Paper trading state machine: Pending → Submitted → PartiallyFilled → Filled/Rejected/Cancelled/Expired
+- No Default derivation: explicit PaperAccount::new(initial_cash, initial_equity)
+- Live execution boundary: Research → Promotion Gate → Paper → Shadow → Canary → Live; disabled by default
+- Experiment registry: 9 reproducibility fields (code_commit, config_hash, dataset_id, feature_versions, strategy_version, model_version, random_seed, execution_model_version)
+- Feature/data lineage: mechanical prevention of future leakage (e.g., future_return_24h blocked at t if available at t+24h)
+- Monitoring metrics: feed_latency, dropped_messages, data_gaps, feature_latency, signal_latency, orders, fills, slippage, PnL, drawdown, model_drift, feature_drift, strategy_decay
+- Autonomous research loop: discover → update datasets → calculate features → run screeners → generate hypotheses → backtest → walk-forward → robustness → promote → paper trade → monitor → retire/promote
+- Dashboard: Market Radar + Strategy Lab + Portfolio + Data Health
+- Dynamic asset discovery instead of hard-coded universes applies across all phases
+- Bounded asynchronous concurrency: Phase 1 (MarketFeedManager), Phase 2 (feature computation limits)
+- No data leakage: applies across all phases via lookback/availability_delay/timestamp-safe retrieval
+- Explicit trading costs: Phase 4 (backtest), Phase 5 (paper trading)
+- Regime-conditional research: Phase 2 (regime engine), Phase 3 (regime-conditioned screening), Phase 4 (WFO segment reporting)
+- Failed experiments retained: Phase 6 ( experiment registry with FAILED/REGIME_DEPENDENT tags)
+- Liquidity as hard constraint: Phase 1 (executable depth gate), Phase 4 (backtest liquidity gate), Phase 5 (portfolio liquidity-adjusted weights)
+- Live execution isolated: Phase 5 (Research → Promotion → Paper → Shadow → Canary → Live), Phase 6 (promotion decision gate)

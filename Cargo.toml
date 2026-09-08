@@ -32,6 +32,7 @@ members = [
   "crates/standalone/regime-detector",
   "crates/standalone/registry",
   "crates/standalone/replay",
+  "crates/standalone/logging",
   "crates/standalone/risk",
   "crates/standalone/scheduler",
   "crates/standalone/sentiment",

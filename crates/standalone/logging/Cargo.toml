@@ -1,0 +1,10 @@
+[package]
+name = "quantaradar-logging"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["rt", "macros", "time", "sync"] }
+chrono = "0.4"
+
+[dev-dependencies]

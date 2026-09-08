@@ -34,6 +34,7 @@ pub struct FeedHealth {
     pub health_score: f64, // 0.0 - 1.0
     pub error_rate: f64,
     pub messages_per_second: f64,
+    pub late_event_count: u64,
 }
 
 impl Default for FeedHealth {
@@ -54,6 +55,7 @@ impl Default for FeedHealth {
             health_score: 1.0,
             error_rate: 0.0,
             messages_per_second: 0.0,
+            late_event_count: 0,
         }
     }
 }
@@ -108,6 +110,7 @@ struct FeedState {
     url: String,
     connected: bool,
     last_sequence: u64,
+    last_processed_time: u64,
     health: FeedHealth,
     reconnect_attempts: u32,
     last_heartbeat: DateTime<Utc>,
@@ -133,6 +136,7 @@ pub struct FeedManagerConfig {
     pub max_reconnect_delay: Duration,
     pub max_reconnect_attempts: u32,
     pub sequence_gap_threshold: u64,
+    pub max_lateness_ms: u64,
     pub health_check_interval: Duration,
     pub enable_auto_resubscribe: bool,
 }
@@ -150,6 +154,7 @@ impl Default for FeedManagerConfig {
             max_reconnect_delay: Duration::from_secs(300),
             max_reconnect_attempts: 10,
             sequence_gap_threshold: 100,
+            max_lateness_ms: 10_000,
             health_check_interval: Duration::from_secs(10),
             enable_auto_resubscribe: true,
         }
@@ -223,6 +228,7 @@ impl MarketFeedManager {
             url,
             connected: false,
             last_sequence: 0,
+            last_processed_time: 0,
             health,
             reconnect_attempts: 0,
             last_heartbeat: Utc::now(),
@@ -547,16 +553,53 @@ impl MarketFeedManager {
         
         let mut feeds = self.feeds.write().await;
         if let Some(feed) = feeds.get_mut(&key) {
-            // Sequence validation
-            if msg.sequence > feed.last_sequence + 1 {
-                let gap = msg.sequence - feed.last_sequence - 1;
+            // Sequence validation using last_sequence and last_processed_time
+            let seq = msg.sequence;
+            let ts = msg.timestamp;
+            
+            // Check for duplicate sequence
+            if seq == feed.last_sequence {
+                warn!("Duplicate sequence {} for {}", seq, key);
+                // Still update last_processed_time for late event check
+                feed.last_processed_time = ts.max(feed.last_processed_time);
+                return Ok(true);
+            }
+            
+            // Check for gap: sequence must be last_sequence + 1
+            if seq > feed.last_sequence + 1 {
+                let gap = seq - feed.last_sequence - 1;
                 feed.health.dropped_count += gap;
                 feed.health.sequence_ok = false;
-                warn!("Sequence gap for {}: missed {} messages", key, gap);
-            } else {
-                feed.health.sequence_ok = true;
+                warn!("Sequence gap for {}: missed {} messages, expected {}, got {}", 
+                      key, gap, feed.last_sequence + 1, seq);
+                
+                // Trigger reconnect/replay from last known sequence
+                // If gap exceeds threshold, initiate reconnection
+                if gap >= self.config.sequence_gap_threshold {
+                    error!("Large sequence gap for {}: {} messages missing, triggering reconnect", 
+                          key, gap);
+                    // Reconnect the feed to request replay from last known sequence
+                    let _ = self.reconnect_feed(&msg.exchange, &msg.symbol).await;
+                }
+            } else if seq < feed.last_sequence {
+                // Out-of-order sequence (but not a duplicate since we checked above)
+                warn!("Out-of-order sequence {} for {}, expected {}", seq, key, feed.last_sequence + 1);
             }
-            feed.last_sequence = msg.sequence;
+            
+            // Check for late event: timestamp must be >= last_processed_time - max_lateness
+            if ts < feed.last_processed_time.saturating_sub(self.config.max_lateness_ms) {
+                feed.health.late_event_count += 1;
+                warn!("Late event rejected for {}: timestamp {} < last_processed_time {} - max_lateness {}",
+                      key, ts, feed.last_processed_time, self.config.max_lateness_ms);
+                // Don't update state for late events - they are rejected
+                drop(feeds);
+                return Ok(false);
+            }
+            
+            // Update state
+            feed.last_sequence = seq;
+            feed.last_processed_time = ts;
+            feed.health.sequence_ok = true;
             feed.health.message_count += 1;
             feed.health.last_message = Utc::now();
             feed.health.stale = false;

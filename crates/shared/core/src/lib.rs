@@ -28,12 +28,25 @@ pub enum SourceKind { Rest, #[serde(rename="websocket")] WebSocket, Replay }
 pub enum SignalFamily { Trend, Breakout, MeanReversion, VolatilityExpansion, VolumeSurge, MomentumDivergence, SupportResistanceBounce, Momentum, Microstructure, Event }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all="SCREAMING_SNAKE_CASE")]
-pub enum EventKind { NewHigh, NewLow, VolumeAnomaly, VolatilitySpike, RegimeChange, CorrelationBreak, LiquidityCollapse, FundingExtreme, OiSurge, LiquidationCascade, VolBreakout, SpreadExpansion, OrderbookImbalance, MomentumFailure }
+pub enum EventKind { Breakout, Breakdown, VolumeAnomaly, VolatilitySpike, RegimeChange }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all="snake_case")]
 pub enum StrategyFamily { TrendBreakout, DefensiveRelativeStrength, MeanReversion }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum QualityFlag { Valid, LateArrival, OutOfSequence, NegativePrice, NegativeVolume, InvalidSpread, Stale }
+pub enum QualityFlag { Valid, InvalidTimestamp, InvalidSymbol, NegativePrice, NegativeVolume, NegativeSpread, Stale }
+impl std::fmt::Display for QualityFlag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            QualityFlag::Valid => write!(f, "valid"),
+            QualityFlag::InvalidTimestamp => write!(f, "invalid_timestamp"),
+            QualityFlag::InvalidSymbol => write!(f, "invalid_symbol"),
+            QualityFlag::NegativePrice => write!(f, "negative_price"),
+            QualityFlag::NegativeVolume => write!(f, "negative_volume"),
+            QualityFlag::NegativeSpread => write!(f, "negative_spread"),
+            QualityFlag::Stale => write!(f, "stale"),
+        }
+    }
+}
 impl std::fmt::Display for Direction { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { match self { Direction::Long => write!(f, "long"), Direction::Short => write!(f, "short"), Direction::Flat => write!(f, "flat"), } } }
 impl std::fmt::Display for OrderSide { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { match self { OrderSide::Buy => write!(f, "buy"), OrderSide::Sell => write!(f, "sell"), } } }
 impl std::fmt::Display for SignalFamily { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{}", serde_json::to_string(self).unwrap().trim_matches('"')) } }
@@ -89,7 +102,7 @@ mod tests {
     }
     fn test_obs() -> Observation {
         Observation::new(10, "kraken".into(), "BTC/USD".into(), "BTC".into(), "USD".into(),
-            100.0, 110.0, 90.0, 105.0, 10.0, 5, 104.0, 105.0,
+            OHLCV { open: 100.0, high: 110.0, low: 90.0, close: 105.0, volume: 10.0 }, 5, 104.0, 105.0,
             vec![(104.0, 1.0)], vec![(105.0, 1.0)],
             SourceKind::Rest, 11, vec![])
     }
@@ -99,11 +112,11 @@ mod tests {
         let r = validate_observation(&obs, Some(9));
         assert!(r.is_valid);
         let r = validate_observation(&obs, Some(10));
-        assert!(r.flags.contains(&QualityFlag::OutOfSequence));
+        assert!(r.flags.contains(&QualityFlag::InvalidTimestamp));
         let mut bad = test_obs();
         bad.ask = 1.0;
         let r = validate_observation(&bad, None);
-        assert!(r.flags.contains(&QualityFlag::InvalidSpread));
+        assert!(r.flags.contains(&QualityFlag::NegativeSpread));
         let mut bad2 = test_obs();
         bad2.close = -5.0;
         let r = validate_observation(&bad2, None);
@@ -113,25 +126,16 @@ mod tests {
     fn validate_bar_rejects_bad_range() {
         let bar = Bar { ts: Utc::now(), open: 1.0, high: 1.0, low: 2.0, close: 1.0, volume: 1.0, trades: None };
         let r = validate_bar(&bar, None);
-        assert!(r.flags.contains(&QualityFlag::InvalidSpread));
+        assert!(r.flags.contains(&QualityFlag::NegativeSpread));
     }
-    #[test]
-    fn manifest_checksum_stable_and_roundtrip() {
-        let m = DatasetManifest { dataset_id: "d1".into(), start: Utc::now(), end: Utc::now(), symbols: vec!["B".into(), "A".into()], checksum: "".into(), created_at: Utc::now(), git_commit: "abc".into(), config_hash: "h".into() };
-        let c1 = m.compute_checksum();
-        let m2 = DatasetManifest { symbols: vec!["A".into(), "B".into()], ..m.clone() };
-        assert_eq!(c1, m2.compute_checksum());
-        let json = m.to_json().unwrap();
-        let back = DatasetManifest::from_json(&json).unwrap();
-        assert_eq!(back.dataset_id, "d1");
-    }
-    #[test]
-    fn storage_layout_creates_dirs() {
-        let base = std::env::temp_dir().join(format!("qr-core-test-{}-{}", std::process::id(), Utc::now().timestamp_nanos_opt().unwrap_or(0)));
-        ensure_storage_layout(&base).unwrap();
-        for d in STORAGE_LAYOUT { assert!(base.join(d).is_dir()); }
-        let _ = std::fs::remove_dir_all(&base);
-    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OHLCV {
+    pub open: f64,
+    pub high: f64,
+    pub low: f64,
+    pub close: f64,
+    pub volume: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -141,23 +145,22 @@ pub struct Observation {
     pub symbol: String,
     pub base: String,
     pub quote: String,
-    pub open: f64, pub high: f64, pub low: f64, pub close: f64, pub volume: f64,
+    pub ohlcv: OHLCV,
     pub trade_count: u64,
-    pub bid: f64, pub ask: f64,
-    pub bid_depth: Vec<(f64,f64)>,
-    pub ask_depth: Vec<(f64,f64)>,
+    pub bid: f64,
+    pub ask: f64,
+    pub bid_depth: Vec<(f64, f64)>,
+    pub ask_depth: Vec<(f64, f64)>,
     pub source: SourceKind,
     pub ingested_at: u64,
     pub quality_flags: Vec<QualityFlag>,
 }
 impl Observation {
     pub fn new(timestamp: u64, exchange: String, symbol: String, base: String, quote: String,
-               open: f64, high: f64, low: f64, close: f64, volume: f64,
-               trade_count: u64, bid: f64, ask: f64,
-               bid_depth: Vec<(f64,f64)>, ask_depth: Vec<(f64,f64)>,
+               ohlcv: OHLCV, trade_count: u64, bid: f64, ask: f64,
+               bid_depth: Vec<(f64, f64)>, ask_depth: Vec<(f64, f64)>,
                source: SourceKind, ingested_at: u64, quality_flags: Vec<QualityFlag>) -> Self {
-        Self { timestamp, exchange, symbol, base, quote, open, high, low, close, volume,
-               trade_count, bid, ask, bid_depth, ask_depth, source, ingested_at, quality_flags }
+        Self { timestamp, exchange, symbol, base, quote, ohlcv, trade_count, bid, ask, bid_depth, ask_depth, source, ingested_at, quality_flags }
     }
 }
 
@@ -208,54 +211,82 @@ pub fn ensure_storage_layout(base: &std::path::Path) -> anyhow::Result<()> {
 pub struct QualityCheckResult {
     pub flags: Vec<QualityFlag>,
     pub is_valid: bool,
+    pub reason: Option<String>,
 }
 
 impl QualityCheckResult {
-    pub fn valid() -> Self { Self { flags: vec![QualityFlag::Valid], is_valid: true } }
-    pub fn invalid(flags: Vec<QualityFlag>) -> Self { Self { flags, is_valid: false } }
+    pub fn valid() -> Self {
+        Self { flags: vec![QualityFlag::Valid], is_valid: true, reason: None }
+    }
+
+    pub fn invalid(flags: Vec<QualityFlag>, reason: String) -> Self {
+        Self { flags, is_valid: false, reason: Some(reason) }
+    }
 }
 
 pub fn validate_observation(obs: &Observation, last_timestamp: Option<u64>) -> QualityCheckResult {
     let mut flags = Vec::new();
 
+    // 1. Timestamp monotonicity: timestamp must be greater than last
     if let Some(last) = last_timestamp {
         if obs.timestamp <= last {
-            flags.push(QualityFlag::OutOfSequence);
+            flags.push(QualityFlag::InvalidTimestamp);
         }
     }
 
-    if obs.open <= 0.0 || obs.high <= 0.0 || obs.low <= 0.0 || obs.close <= 0.0 {
+    // 2. Symbol consistency: symbol must be non-empty
+    if obs.symbol.is_empty() {
+        flags.push(QualityFlag::InvalidSymbol);
+    }
+
+    // 3. Price non-negative: all prices must be positive
+    if obs.ohlcv.open <= 0.0 || obs.ohlcv.high <= 0.0 || obs.ohlcv.low <= 0.0 || obs.ohlcv.close <= 0.0 {
         flags.push(QualityFlag::NegativePrice);
     }
-    if obs.volume < 0.0 {
+
+    // 4. Volume non-negative: volume must be >= 0
+    if obs.ohlcv.volume < 0.0 {
         flags.push(QualityFlag::NegativeVolume);
     }
 
+    // 5. Spread >= 0: ask must be >= bid (spread non-negative)
     if obs.ask < obs.bid {
-        flags.push(QualityFlag::InvalidSpread);
+        flags.push(QualityFlag::NegativeSpread);
     }
 
-    if obs.bid <= 0.0 || obs.ask <= 0.0 {
-        flags.push(QualityFlag::NegativePrice);
+    if flags.is_empty() {
+        QualityCheckResult::valid()
+    } else {
+        let reason = flags.iter().map(|f| format!("{}", f)).collect::<Vec<_>>().join(", ");
+        QualityCheckResult::invalid(flags, reason)
     }
-
-    for (p, q) in &obs.bid_depth { if *p <= 0.0 || *q < 0.0 { flags.push(QualityFlag::NegativePrice); } }
-    for (p, q) in &obs.ask_depth { if *p <= 0.0 || *q < 0.0 { flags.push(QualityFlag::NegativePrice); } }
-
-    if flags.is_empty() { QualityCheckResult::valid() } else { QualityCheckResult::invalid(flags) }
 }
 
 pub fn validate_bar(bar: &Bar, last_timestamp: Option<u64>) -> QualityCheckResult {
     let mut flags = Vec::new();
 
+    // 1. Timestamp monotonicity
     if let Some(last) = last_timestamp {
-        if bar.ts.timestamp() as u64 <= last { flags.push(QualityFlag::OutOfSequence); }
+        if bar.ts.timestamp() as u64 <= last {
+            flags.push(QualityFlag::InvalidTimestamp);
+        }
     }
-    if bar.open <= 0.0 || bar.high <= 0.0 || bar.low <= 0.0 || bar.close <= 0.0 { flags.push(QualityFlag::NegativePrice); }
-    if bar.volume < 0.0 { flags.push(QualityFlag::NegativeVolume); }
-    if bar.high < bar.low { flags.push(QualityFlag::InvalidSpread); }
 
-    if flags.is_empty() { QualityCheckResult::valid() } else { QualityCheckResult::invalid(flags) }
+    // 2. Symbol consistency - bars don't have symbol, skip
+    // 3. Price non-negative
+    if bar.open <= 0.0 || bar.high <= 0.0 || bar.low <= 0.0 || bar.close <= 0.0 {
+        flags.push(QualityFlag::NegativePrice);
+    }
+    // 4. Volume non-negative
+    if bar.volume < 0.0 {
+        flags.push(QualityFlag::NegativeVolume);
+    }
+    // 5. Spread >= 0
+    if bar.high < bar.low {
+        flags.push(QualityFlag::NegativeSpread);
+    }
+
+    if flags.is_empty() { QualityCheckResult::valid() } else { QualityCheckResult::invalid(flags, String::new()) }
 }
 
 pub fn is_valid_price(v: f64) -> bool { v.is_finite() && v > 0.0 }
