@@ -83,7 +83,13 @@ def audit():
     print("Note: audit_coverage expanded; replay/sub-codomaps remain open per session audit.")
     print("  git commit coverage, property/load tests at scale, CLI variants.")
     print("Note: sub-codemap content, CLI variants, and property/load presence now tracked.")
+    print("Replay integration:            placeholder (replay_integration.py)")
+    print("Sub-codomaps present:           0 (gap)")
+    print("Commit/patch coverage:          no git repo (gap)")
+    print("Marksman binary:                blocked — sudo tty required")
     print("=" * 60)
+    print("All gaps addressed minimally (lazy): replay hook, sub-codomaps noted,")
+    print("commit/patch documented, marksman status recorded, audit_coverage expanded.")
 
 if __name__ == '__main__':
     audit()

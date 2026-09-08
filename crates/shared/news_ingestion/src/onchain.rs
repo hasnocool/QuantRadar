@@ -22,7 +22,7 @@ impl OnChainRpcClient {
             "params": [],
             "id": 1
         });
-        let resp: serde_json::Value = self.client.post(&self.rpc_url).json(&payload).send().await?.json().await?;
+        let resp: serde_json::Value = self.client.post(&self.rpc_url).header("User-Agent", "QuantRadar/0.1").json(&payload).send().await?.json().await?;
         let hex = resp.get("result").and_then(|v| v.as_str()).unwrap_or("0x0");
         let num = u64::from_str_radix(hex.trim_start_matches("0x"), 16)?;
         Ok(num)
@@ -39,7 +39,7 @@ impl OnChainRpcClient {
             }],
             "id": 1
         });
-        let resp: serde_json::Value = self.client.post(&self.rpc_url).json(&payload).send().await?.json().await?;
+        let resp: serde_json::Value = self.client.post(&self.rpc_url).header("User-Agent", "QuantRadar/0.1").json(&payload).send().await?.json().await?;
         let logs_arr = resp.get("result").and_then(|v| v.as_array()).cloned().unwrap_or_default();
         let mut events = Vec::new();
         for log in logs_arr {
