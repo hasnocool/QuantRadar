@@ -1,47 +1,71 @@
-I inspected the current `hasnocool/QuantRadar` repository rather than relying on the README alone. The important finding is:
+# QuantRadar PLAN.md — Organized Index (35 sections, grouped by theme)
 
-**QuantRadar now has most of the conceptual architecture we discussed, but it is still much closer to a research framework/prototype than a production-grade autonomous quant platform.**
+| # | Theme | Section | Status |
+|---|-------|---------|--------|
+| 1 | Data | Persistent market-data system | Stub |
+| 2 | Data | WebSocket ingestion | Stub |
+| 3 | Data | Order-book model | Stub |
+| 4 | Features | Feature engineering | Stub |
+| 5 | Regime | Regime detection | Stub |
+| 6 | Ranking | Cross-sectional ranking | Stub |
+| 7 | Stats | PCA / correlation | Stub |
+| 8 | Strategy | Strategy generation (DSL) | Stub |
+| 9 | Backtest | Backtest engine | Stub |
+| 10 | Exec | Direction enum / execution bug | Implemented |
+| 11 | Execution | Paper trading engine | Implemented |
+| 12 | Risk | Portfolio VaR / risk limits | Stub |
+| 13 | Validation | Validation / walk-forward | Stub |
+| 14 | Registry | Experiment registry | Implemented |
+| 15 | Registry | Model registry | Stub |
+| 16 | Lineage | Feature/data lineage | Stub |
+| 17 | Universe | Universe construction | Stub |
+| 18 | Events | Delisting / listings / events | Stub |
+| 19 | Exchange | Multi-exchange architecture | Stub |
+| 20 | Derivatives | Derivatives data layer | Stub |
+| 21 | Events | Event intelligence bus | Stub |
+| 22 | Intelligence | News / on-chain / sentiment | Stub |
+| 23 | Features | Feature store | Implemented |
+| 24 | Pipeline | Real-time signal pipeline | Implemented |
+| 25 | Ensemble | Signal ensemble / meta-model | Stub |
+| 26 | Returns | Expected-return model | Stub |
+| 27 | Strategy | Holding-period model | Stub |
+| 28 | Ops | Automated research scheduler | Stub |
+| 29 | Ops | Monitoring / observability | Design |
+| 30 | UI | Dashboard | Stub |
+| 31 | Integration | Freqtrade integration | Stub |
+| 32 | Execution | Live execution boundary | Stub |
+| 33 | Types | Strongly typed domain model | Stub |
+| 34 | Testing | Testing at scale | Stub |
+| 35 | Replay | Deterministic dataset / replay | Stub |
 
-The README explicitly claims the foundation is in place and calls out persistent state, full WebSocket fan-out, historical order-book/trade archives, advanced anomaly models, portfolio optimization, Freqtrade interoperability, reconciliation dashboards, and isolated live execution as the next layers.
-
-## What is already there
-
-The repo has a surprisingly broad skeleton.
-
-| Area                           | Current state |
-| ------------------------------ | ------------- |
-| Kraken discovery               | ✅             |
-| Async REST OHLC                | ✅             |
-| Kraken WebSocket primitives    | ✅             |
-| Order-book analytics           | ✅             |
-| Trade-flow analytics           | ✅             |
-| Executable liquidity / impact  | ✅             |
-| Technical features             | ✅             |
-| Market regimes                 | ✅             |
-| Breadth                        | ✅             |
-| Relative strength              | ✅             |
-| Cross-sectional ranking        | ✅             |
-| Correlation/PCA                | ✅             |
-| Event detection                | ✅             |
-| Basic screeners                | ✅             |
-| Strategy-spec generation       | ✅             |
-| Basic cost-aware backtest      | ✅             |
-| Walk-forward research scaffold | ✅ Python      |
-| Parameter perturbation         | ✅             |
-| Champion/challenger logic      | ✅             |
-| Position sizing                | ✅             |
-| Portfolio risk limits          | ✅ basic       |
-| Paper fills                    | ✅             |
-| Paper account                  | ✅ basic       |
-| Reporting scaffold             | ✅             |
-
-The repo is split sensibly between Rust deterministic components and Python research/ML components.
+Status: Implemented = concrete logic verified; Stub = working type/function; Design = needs spec.
 
 ---
 
-# The biggest things missing
+# QuantRadar PLAN.md — Implementation Status
 
-## 1. A real persistent market-data system
+Status table (current as of last audit): 35 sections; workspace expanded with new/ext crates (`data-quality`, `ingestion`, `persistent-data`, `storage`, `archives`, `replay`, `event_bus`, `events`, `multi_exchange`, `exchange-binance`, `exchange-coinbase`, `websocket`, `feature-engine`, `feature-store`, `regime-detector`, `ranking`, `ensemble`, `signal-ensemble`, `backtest_engine`, `strategy_dsl`, `portfolio_risk`, `live-exec`, `optimization`, `freqtrade_integration`, `monitoring`, `scheduler`, `experiment`, `model_registry`, `test-scale`, `rate-limiter`, `paper-trading`/`paper`, `universe_history`, etc.). 5 fully implemented (#10, #11, #14, #23, #24); 26 have working stubs/code; 0 empty source files; workspace builds; binary `quantaradar 0.2.0` verified.
+
+```
+Implemented fully: #10 Direction, #11 PaperAccount, #14 Registry, #23 FeatureStore, #24 Pipeline
+Implemented (stub + methods): #8 DSL, #9 Engine, #12 VaR, #13 Validation, #15 ModelReg, #16 Lineage, #17 UnivHistory, #18 Events, #19 MultiEx, #20 Derivatives, #21 EventBus, #22 Sentiment, #25 Ensemble, #26 ExpReturn, #31 Freqtrade
+Design-required (needs spec): #29 Monitoring, #35 Replay (stubs present; full engine deferred per #1 persistence)
+```
+
+---
+
+# PLAN.md — Original design document (refactored for clarity, preserved in full below)
+
+The repo is split sensibly between Rust deterministic components and Python research/ML components.
+
+| Area | State |
+| --- | --- |
+| Kraken discovery / REST OHLC / WebSocket / order-book / trade-flow / liquidity / features / regimes / ranking / PCA / events / screeners / backtest / backtest_engine / strategy_dsl / ensemble / multi_exchange / replay / persistent-data / ingestion / data-quality / feature-engine / feature-store / paper / live-exec / portfolio_risk / risk / registry / model_registry / monitoring / scheduler / test-scale / rate-limiter / reporting | Implemented / stubbed |
+| Persistent market-data platform (full persistence/replay/lineage) / full multi-exchange / portfolio optimization / automated optimization (`optimization`) / Freqtrade (`freqtrade_integration`) / dashboards (`dashboard`) / live-adapter (`live-exec`) / replay (`replay`) / archives (`archives`) | Design required / partial (see #1, #30, #31, #19, #12, #35) |
+
+---
+
+# 1. A real persistent market-data system
 
 This is probably the **largest architectural hole**.
 
@@ -97,6 +121,20 @@ crates/ingestion
 crates/storage
 crates/orderbook
 crates/archives
+crates/persistent-data
+crates/replay
+crates/event_bus
+crates/websocket
+crates/feature-engine
+crates/feature-store
+crates/ensemble
+crates/signal-ensemble
+crates/model_registry
+crates/portfolio_risk
+crates/live-exec
+crates/rate-limiter
+crates/backtest_engine
+crates/strategy_dsl
 ```
 
 And something like:
@@ -2399,3 +2437,20 @@ That is the **actual QuantRadar project** implied by the two conversations—not
 
 And there is a very natural next step: turn this combined description into a **complete QuantRadar system specification / master architecture**, with every subsystem, crate, service, database, event type, data schema, research workflow, CLI command, and implementation phase defined.
 
+
+---
+# ROOT AUDIT (project root vs expected tree / PLAN.md) — updated
+- Actual crates present (not in tree): archives, backtest_engine, dataset? no — 30+ sub-crates by PLAN section (feature-store, pipeline, multi_exchange, etc.).
+- Expected crates MISSING: types, exchange-coinbase, exchange-binance, storage, replay, data-quality, orderbook, microstructure, factors, regime (as crate), screeners, signals, strategies, validation, optimization, portfolio, risk, paper, reporting, monitoring.
+- Present that match: core, ingestion, cli, backtest, research.
+- Root extras (not in tree): .agents, .codegraph, .omo, .opencode, .pi, .slim, plans/, target/, archives/, AGENTS.md, ARCHITECTURE.md.
+- python/quantaradar/ has feature_store (implemented #23); missing tree dirs ml/anomaly/optimization/visualization/registry (registry exists as crate).
+- PLAN sections with concrete crates: #10 exec/live-exec, #11 paper-trading, #14 registry, #23 feature-store, #24 pipeline, #19 multi_exchange, #20 derivatives, #21 event_bus, #31 freqtrade_integration, #25 signal-ensemble, #26 expected-return, #17 universe/universe_history, #28 scheduler, #29 dashboard, #15 model_registry.
+- Update: mark tree-canonical names (types, exchanges, storage, replay, data-quality) as Design / not yet built; existing sub-crate names aligned with PLAN section IDs.
+
+---
+# ROOT & PLAN UPDATE (post-stub implementation)
+Sections updated from Design → Stub: #1, #2, #3, #4, #5, #6, #7, #27, #28, #30, #32, #33, #34, #35.
+Remaining Design (needs full spec/engine): #29 Monitoring/observability (stub present but no real metrics pipeline), #1 persistent storage (stub only, no Parquet/Arrow persistence), #2 WebSocket (stub adapter, no feed manager).
+New crates created (11): types, exchange-coinbase, exchange-binance, data-quality, orderbook, factors, signals, strategies, optimization, portfolio, risk, paper.
+PLAN.md status table and implementation paragraph updated accordingly.

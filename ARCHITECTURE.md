@@ -55,3 +55,19 @@ Every signal retains timestamp, symbol, family, direction, score, regime, ration
 - Failed experiments retained for future learning.
 - Liquidity as a hard constraint.
 - Live execution isolated from research until promotion gates pass.
+
+## Crate modules (current workspace state)
+
+New/ext crates added to extend functionality (grouped by theme):
+
+**Data / persistence / quality** — `data-model`, `data-quality`, `persistent-data`, `ingestion`, `storage`, `archives`, `websocket`, `replay`, `event_bus`, `events`
+**Exchanges / multi-source** — `exchange-kraken` (REST + WebSocket v2), `exchange-binance`, `exchange-coinbase`, `multi_exchange`
+**Features / engine / store** — `features`, `feature-engine`, `feature-store`
+**Regime / ranking / stats** — `regime`, `regime-detector`, `ranking`, `pca`, `research`
+**Screening / ensemble / signals** — `screeners`, `ensemble`, `signal-ensemble`, `signals`, `sentiment`
+**Strategy / DSL / backtest / engine** — `strategies`, `strategy_dsl`, `backtest`, `backtest_engine`
+**Execution / paper / live / risk / portfolio** — `execution`, `paper-trading`, `paper`, `live-exec`, `portfolio`, `portfolio_risk`, `risk`
+**Operations / registry / monitoring / pipeline** — `pipeline`, `registry`, `model_registry`, `monitoring`, `scheduler`, `test-scale`, `validation`, `experiment`
+**Domain / types / lineages / universe** — `core`, `domain-model`, `types`, `lineage`, `universe`, `universe_history`, `derivatives`, `expected-return` / `expected_return`
+
+These crates extend the architecture from ingestion through persistent storage, multi-exchange support, feature stores, regime detection, signal ensemble, backtest engines, portfolio risk, replay, rate limiting (`rate-limiter`), and isolated live-execution (`live-exec`) boundaries.

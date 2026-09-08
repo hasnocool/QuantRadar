@@ -1,0 +1,15 @@
+# QuantRadar report serialization
+[package]
+name = "quantaradar-reporting"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+[dependencies]
+quantaradar-core = { path = "../core" }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml = "0.9"
+chrono.workspace = true
+uuid = { version = "1", features = ["v4", "serde"] }

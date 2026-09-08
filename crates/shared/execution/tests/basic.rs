@@ -1,0 +1,1 @@
+use quantaradar_execution::*; #[test] fn execution_struct_exists() { let _r = RiskLimits { starting_equity: 10000.0, max_position_pct: 0.1, max_portfolio_heat: 0.5, max_drawdown_pct: 0.2, max_concurrent_positions: 5, min_liquidity_score: 0.1, cluster_correlation_threshold: 0.5 }; }

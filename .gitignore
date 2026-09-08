@@ -9,3 +9,5 @@
 .omo/drafts/
 # OS
 .DS_Store
+# Deepwork state
+.slim/deepwork/

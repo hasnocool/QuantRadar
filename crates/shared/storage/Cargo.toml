@@ -1,0 +1,17 @@
+[package]
+name = "quantaradar-storage"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+quantaradar-core = { path = "../core" }
+quantaradar-data-model = { path = "../data-model" }
+chrono = { workspace = true, features = ["serde"] }
+serde = { workspace = true, features = ["derive"] }
+anyhow = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
+arrow = { workspace = true }
+parquet = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,12 @@
+# Binance REST/WebSocket ingestion.
+[package]
+name = "exchange-binance"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+reqwest.workspace = true
+tokio.workspace = true

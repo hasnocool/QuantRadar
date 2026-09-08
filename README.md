@@ -57,6 +57,10 @@ Portfolio sizing → risk limits → paper orders → fills/reconciliation
 - Parameter perturbation / robustness testing.
 - Champion/challenger promotion gates requiring OOS improvement plus drawdown and profit-factor constraints.
 
+### Extended crate landscape
+- New/ext crates cover data quality (`data-quality`), ingestion (`ingestion`), persistent storage (`persistent-data`, `storage`, `archives`), replay (`replay`), multi-exchange (`multi_exchange`, `exchange-binance`, `exchange-coinbase`), event bus (`event_bus`, `events`), feature engine/store (`feature-engine`, `feature-store`), regime detector (`regime-detector`), ranking (`ranking`), signal ensemble (`ensemble`, `signal-ensemble`), backtest engine (`backtest_engine`), DSL (`strategy_dsl`), portfolio risk (`portfolio_risk`), paper execution (`paper`, `paper-trading`), live-exec (`live-exec`), optimization (`optimization`), Freqtrade interop (`freqtrade_integration`), monitoring/scheduler (`monitoring`, `scheduler`), experiment (`experiment`), registry (`registry`, `model_registry`), replay/archives (`replay`, `archives`), and scale testing (`test-scale`).
+- `rate-limiter` added for bounded concurrency controls.
+
 ### Portfolio and paper trading
 - Position-risk sizing from equity, entry and stop distance.
 - Per-position size caps, portfolio heat and concurrent-position limits.
@@ -70,16 +74,48 @@ Portfolio sizing → risk limits → paper orders → fills/reconciliation
 ```text
 crates/
   core/                   shared domain models
+  domain-model/           domain types
+  data-model/             observation / bar models
+  data-quality/           quality flags / validation
+  ingestion/              data ingestion pipeline
+  persistent-data/        durable storage layer
+  storage/ / archives/     historical datasets
   exchange-kraken/        Kraken REST + WebSocket market data
+  exchange-binance/       Binance data adapter
+  exchange-coinbase/      Coinbase adapter
+  multi_exchange/         multi-source coordination
+  websocket/              generic WebSocket primitives
+  replay/                 deterministic replay
+  event_bus/ / events/     event publishing
   features/               deterministic technical features
+  feature-engine/         feature computation
+  feature-store/          persistent feature storage
   regime/                 market-state classifier
+  regime-detector/        regime detection
   screeners/              explainable screener families
+  ranking/                cross-sectional ranking
   microstructure/         order-book/trade-flow/liquidity analytics
-  research/               breadth/ranking/relative-strength/PCA/events
+  research/               breadth / ranking / relative-strength / PCA / events
   backtest/               cost-aware backtesting
-  reporting/              machine-readable reports
+  backtest_engine/        backtest execution engine
+  pipeline/               signal pipeline
+  ensemble/ / signal-ensemble/  meta-model / combined signals
+  strategies/             strategy definitions
+  strategy_dsl/           DSL generation
+  registry/ / model_registry/  experiment / model registry
   execution/              risk controls + paper execution
+  paper-trading/ / paper/ paper execution primitives
+  live-exec/              isolated live-execution adapter (disabled)
+  portfolio/ / portfolio_risk/  sizing + portfolio risk
+  risk/                   risk limits / VaR
+  reporting/              machine-readable reports
   cli/                    quantaradar CLI
+  experiment/             experiment tracking
+  optimization/           optimization layer
+  freqtrade_integration/  Freqtrade interop
+  validation/             validation / walk-forward
+  scheduler/ / monitoring/  ops / observability
+  test-scale/             scale testing
 python/quantaradar/
   robustness.py           robustness + champion/challenger gates
 configs/                  research and strategy configurations
