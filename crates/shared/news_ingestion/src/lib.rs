@@ -117,6 +117,10 @@ pub async fn run(config: IngestionConfig) -> anyhow::Result<()> {
     };
     
     let storage = NewsStorage::new(config.storage_path.clone());
+    let rss_count = rss_items.len();
+    let json_count = json_items.len();
+    let google_count = google_items.len();
+    let api_count = api_items.len();
     let all_news = [rss_items, json_items, google_items, api_items].concat();
     storage.save_news(&all_news)?;
     storage.save_onchain(&events)?;
@@ -140,10 +144,10 @@ pub async fn run(config: IngestionConfig) -> anyhow::Result<()> {
         "onchain_events": events.len(),
         "alerts": alerts.len(),
         "sources": {
-            "reddit_rss": rss_items.len(),
-            "reddit_json": json_items.len(),
-            "google_news": google_items.len(),
-            "newsapi": api_items.len()
+            "reddit_rss": rss_count,
+            "reddit_json": json_count,
+            "google_news": google_count,
+            "newsapi": api_count
         }
     });
     let dashboard_path = format!("{}/dashboard.json", config.storage_path);
