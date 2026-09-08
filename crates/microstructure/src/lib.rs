@@ -19,12 +19,12 @@ pub struct MicrostructureFeatures {
 pub fn analyze(book: &OrderBookSnapshot, trades: &[TradeTick]) -> MicrostructureFeatures {
     let mid = if book.bid > 0.0 && book.ask > 0.0 { (book.bid + book.ask) / 2.0 } else { 0.0 };
     let spread_bps = if mid > 0.0 { (book.ask - book.bid) / mid * 10_000.0 } else { f64::INFINITY };
-    let bid_depth_usd = book.bid_depth.iter().map(|(p,q)| p*q).sum();
-    let ask_depth_usd = book.ask_depth.iter().map(|(p,q)| p*q).sum();
+    let bid_depth_usd: f64 = book.bid_depth.iter().map(|(p,q)| p*q).sum();
+    let ask_depth_usd: f64 = book.ask_depth.iter().map(|(p,q)| p*q).sum();
     let total_depth = bid_depth_usd + ask_depth_usd;
     let depth_imbalance = if total_depth > 0.0 { (bid_depth_usd - ask_depth_usd) / total_depth } else { 0.0 };
-    let trade_volume_usd: f64 = trades.iter().map(|t| t.price*t.quantity).sum();
-    let buy_usd: f64 = trades.iter().filter(|t| t.side == "buy").map(|t| t.price*t.quantity).sum();
+    let trade_volume_usd: f64 = trades.iter().map(|t| t.price*t.quantity).sum::<f64>();
+    let buy_usd: f64 = trades.iter().filter(|t| t.side == "buy").map(|t| t.price*t.quantity).sum::<f64>();
     let trade_buy_ratio = if trade_volume_usd > 0.0 { buy_usd / trade_volume_usd } else { 0.5 };
     let avg_trade_usd = if !trades.is_empty() { trade_volume_usd / trades.len() as f64 } else { 0.0 };
     let impact = |size: f64, asks: bool| -> f64 {
@@ -45,7 +45,7 @@ pub fn analyze(book: &OrderBookSnapshot, trades: &[TradeTick]) -> Microstructure
     let i1 = impact(1_000.0 / mid.max(1e-12), true);
     let i10 = impact(10_000.0 / mid.max(1e-12), true);
     let i100 = impact(100_000.0 / mid.max(1e-12), true);
-    let liquidity_score = (100.0 / (1.0 + spread_bps.max(0.0))) * (1.0 + (total_depth.max(0.0).log10()/8.0).clamp(0.0, 1.0)) / (1.0 + i10 / 10.0);
+    let liquidity_score = (100.0 / (1.0 + spread_bps.max(0.0_f64))) * (1.0 + (total_depth.max(0.0_f64).log10()/8.0).clamp(0.0, 1.0)) / (1.0 + i10 / 10.0);
     MicrostructureFeatures { spread_bps, bid_depth_usd, ask_depth_usd, depth_imbalance, trade_buy_ratio, trade_volume_usd, avg_trade_usd, impact_bps_1k:i1, impact_bps_10k:i10, impact_bps_100k:i100, liquidity_score }
 }
 
