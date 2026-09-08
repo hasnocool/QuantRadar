@@ -1,0 +1,11 @@
+# Build
+/target/
+# Data & reports (generated)
+/data/
+/reports/
+# Work state (not plan artifacts)
+.omo/boulder.json
+.omo/run-continuation/
+.omo/drafts/
+# OS
+.DS_Store
