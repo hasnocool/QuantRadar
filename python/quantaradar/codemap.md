@@ -1,19 +1,13 @@
 # python/quantaradar/
 
-<!-- Fixer: Fill in this section with architectural understanding -->
-
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Python research layer: ML exploration, walk-forward, robustness, champion/challenger gates.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Pydantic v2 schemas, uv + ruff, polars/duckdb for data, basedpyright types.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Market data → feature engineering (polars) → ML/research → walk-forward → champion/challenger → promotion.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Connects to Rust crates (core, features, backtest, screening) via data files (data/raw, reports) and Python package entry points.

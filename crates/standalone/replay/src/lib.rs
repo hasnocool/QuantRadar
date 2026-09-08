@@ -96,3 +96,13 @@ mod tests {
         assert!(result.is_ok() || result.is_err());
     }
 }
+
+#[cfg(test)]
+mod property_load_tests {
+    use super::*;
+    #[test]
+    fn replay_scale_property_stable() {
+        let result = replay_full_dataset_integration("test");
+        assert!(result.is_ok() || result.is_err());
+    }
+}

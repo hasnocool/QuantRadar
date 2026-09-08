@@ -111,7 +111,7 @@ pub async fn run(config: IngestionConfig) -> anyhow::Result<()> {
         Ok(b) => { println!("On-chain latest block: {}", b); b },
         Err(e) => { eprintln!("On-chain block error: {}", e); 0 }
     };
-    let events = match rpc.get_logs(config.onchain_address.clone(), latest.saturating_sub(100), latest).await {
+    let events = match rpc.get_logs(&config.onchain_address, latest.saturating_sub(100), latest).await {
         Ok(v) => { println!("On-chain events collected {}", v.len()); v },
         Err(e) => { eprintln!("On-chain logs error: {}", e); Vec::new() }
     };
@@ -128,6 +128,27 @@ pub async fn run(config: IngestionConfig) -> anyhow::Result<()> {
     for a in alerts.iter().take(5) {
         println!("ALERT: {:?} - {}", a.source, a.title);
     }
+    
+    let alerts_path = format!("{}/alerts.json", config.storage_path);
+    let alerts_json = serde_json::to_string_pretty(&alerts).unwrap_or_default();
+    let _ = std::fs::write(&alerts_path, alerts_json);
+    println!("Alerts saved to {}", alerts_path);
+    
+    let dashboard = serde_json::json!({
+        "timestamp": chrono::Utc::now(),
+        "news_count": all_news.len(),
+        "onchain_events": events.len(),
+        "alerts": alerts.len(),
+        "sources": {
+            "reddit_rss": rss_items.len(),
+            "reddit_json": json_items.len(),
+            "google_news": google_items.len(),
+            "newsapi": api_items.len()
+        }
+    });
+    let dashboard_path = format!("{}/dashboard.json", config.storage_path);
+    let _ = std::fs::write(&dashboard_path, serde_json::to_string_pretty(&dashboard).unwrap_or_default());
+    println!("Dashboard saved to {}", dashboard_path);
     
     Ok(())
 }
