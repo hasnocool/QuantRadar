@@ -6,14 +6,8 @@ use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Bar {
-    pub ts: DateTime<Utc>,
-    pub open: f64,
-    pub high: f64,
-    pub low: f64,
-    pub close: f64,
-    pub volume: f64,
-    #[serde(default)]
-    pub trades: Option<f64>,
+    pub ts: DateTime<Utc>, pub open: f64, pub high: f64, pub low: f64, pub close: f64, pub volume: f64,
+    #[serde(default)] pub trades: Option<f64>,
 }
 impl Bar { pub fn range(&self) -> f64 { self.high - self.low } pub fn typical_price(&self) -> f64 { (self.high + self.low + self.close) / 3.0 } }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -26,4 +20,8 @@ pub struct FeatureRow { pub ts: DateTime<Utc>, pub symbol: String, pub close: f6
 pub struct Signal { pub id: Uuid, pub ts: DateTime<Utc>, pub symbol: String, pub family: String, pub direction: String, pub score: f64, pub regime: Regime, pub rationale: Vec<String>, pub features: BTreeMap<String, f64> }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScreenResult { pub generated_at: DateTime<Utc>, pub regime: Regime, pub signals: Vec<Signal> }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OrderBookSnapshot { pub ts: i64, pub bid: f64, pub ask: f64, pub bid_depth: Vec<(f64,f64)>, pub ask_depth: Vec<(f64,f64)> }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TradeTick { pub ts: i64, pub price: f64, pub quantity: f64, pub side: String }
 pub fn safe_return(now: f64, then: f64) -> Option<f64> { if then.is_finite() && now.is_finite() && then.abs() > f64::EPSILON { Some(now / then - 1.0) } else { None } }
