@@ -2,18 +2,72 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/core",
-  "crates/exchange-kraken",
-  "crates/features",
-  "crates/screeners",
-  "crates/regime",
-  "crates/backtest",
-  "crates/reporting",
-  "crates/microstructure",
-  "crates/research",
-  "crates/execution",
-  "crates/experiment",
-  "crates/cli",
+  "crates/standalone/data-quality",
+  "crates/standalone/derivatives",
+  "crates/standalone/ensemble",
+  "crates/standalone/event_bus",
+  "crates/standalone/events",
+  "crates/standalone/exchange-binance",
+  "crates/standalone/exchange-coinbase",
+  "crates/standalone/expected_return",
+  "crates/standalone/feature-engine",
+  "crates/standalone/feature-store",
+  "crates/standalone/freqtrade_integration",
+  "crates/standalone/hold-period",
+  "crates/standalone/lineage",
+  "crates/standalone/live-exec",
+  "crates/standalone/model_registry",
+  "crates/standalone/monitoring",
+  "crates/standalone/multi_exchange",
+  "crates/standalone/optimization",
+  "crates/standalone/orderbook",
+  "crates/standalone/paper",
+  "crates/standalone/paper-trading",
+  "crates/standalone/pca",
+  "crates/standalone/persistent-data",
+  "crates/standalone/pipeline",
+  "crates/standalone/portfolio",
+  "crates/standalone/portfolio_risk",
+  "crates/standalone/rate-limiter",
+  "crates/standalone/regime-detector",
+  "crates/standalone/registry",
+  "crates/standalone/replay",
+  "crates/standalone/risk",
+  "crates/standalone/scheduler",
+  "crates/standalone/sentiment",
+  "crates/standalone/signals",
+  "crates/standalone/strategies",
+  "crates/standalone/strategy_dsl",
+  "crates/standalone/test-scale",
+  "crates/standalone/types",
+  "crates/standalone/universe",
+  "crates/standalone/universe_history",
+  "crates/standalone/validation",
+  "crates/shared/archives",
+  "crates/shared/backtest",
+  "crates/shared/backtest_engine",
+  "crates/shared/cli",
+  "crates/shared/core",
+  "crates/shared/dashboard",
+  "crates/shared/data-model",
+  "crates/shared/domain-model",
+  "crates/shared/exchange-kraken",
+  "crates/shared/execution",
+  "crates/shared/expected-return",
+  "crates/shared/experiment",
+  "crates/shared/features",
+  "crates/shared/ingestion",
+  "crates/shared/microstructure",
+  "crates/shared/news_ingestion",
+  "crates/shared/order-book",
+  "crates/shared/ranking",
+  "crates/shared/regime",
+  "crates/shared/reporting",
+  "crates/shared/research",
+  "crates/shared/screeners",
+  "crates/shared/signal-ensemble",
+  "crates/shared/storage",
+  "crates/shared/websocket"
 ]
 
 [workspace.package]
@@ -23,6 +77,10 @@ rust-version = "1.85"
 version = "0.2.0"
 
 [workspace.dependencies]
+ndarray-linearalgebra = "0.5"
+ndarray = "0.15"
+parquet = { version = "53", features = ["snap", "arrow"] }
+arrow = { version = "53", features = ["csv", "json", "ipc"] }
 anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4", features = ["derive", "env"] }
