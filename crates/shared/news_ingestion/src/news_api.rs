@@ -34,7 +34,7 @@ impl NewsApiCollector {
             urlencoding::encode(&self.query),
             self.api_key
         );
-        let resp = self.client.get(&url).send().await?;
+        let resp = self.client.get(&url).header("User-Agent", "QuantRadar/0.1").send().await?;
         if !resp.status().is_success() { return Ok(vec![]); }
         let data: NewsApiResponse = resp.json().await?;
         let mut items = Vec::new();
