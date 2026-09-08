@@ -1,0 +1,11 @@
+# QuantRadar deterministic strategy backtester
+[package]
+name = "quantaradar-backtest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+[dependencies]
+chrono.workspace = true
+serde.workspace = true
+quantaradar-core = { path = "../core" }
