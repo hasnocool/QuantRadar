@@ -111,7 +111,7 @@ pub async fn run(config: IngestionConfig) -> anyhow::Result<()> {
         Ok(b) => { println!("On-chain latest block: {}", b); b },
         Err(e) => { eprintln!("On-chain block error: {}", e); 0 }
     };
-    let events = match rpc.get_logs("0x0000000000000000000000000000000000000000", latest.saturating_sub(100), latest).await {
+    let events = match rpc.get_logs(config.onchain_address.clone(), latest.saturating_sub(100), latest).await {
         Ok(v) => { println!("On-chain events collected {}", v.len()); v },
         Err(e) => { eprintln!("On-chain logs error: {}", e); Vec::new() }
     };

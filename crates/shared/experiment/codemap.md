@@ -1,19 +1,13 @@
-# crates/experiment/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+# crates/shared/experiment/codemap
 
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Experiment registry and lineage tracking.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Strict Rust types, native computation, minimal speculation.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Upstream core/features → experiment computation → downstream consumers.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by workspace pipeline; depends on core/features.

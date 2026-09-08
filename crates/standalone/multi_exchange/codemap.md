@@ -1,19 +1,13 @@
-# crates/multi_exchange/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+# crates/standalone/multi_exchange/codemap
 
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Multi-exchange data aggregation.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Strict Rust types, native computation, minimal speculation.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Upstream core/features → multi_exchange computation → downstream consumers.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by workspace pipeline; depends on core/features.

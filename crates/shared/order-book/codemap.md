@@ -1,19 +1,13 @@
-# crates/order-book/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+# crates/shared/order-book/codemap
 
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Order-book models and depth analytics.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Strict Rust types, native computation, minimal speculation.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Upstream core/features → order-book computation → downstream consumers.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by workspace pipeline; depends on core/features.

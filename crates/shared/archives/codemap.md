@@ -1,19 +1,13 @@
-# crates/archives/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+# crates/shared/archives/codemap
 
 ## Responsibility
-
-<!-- What is this folder's job in the system? -->
+Archive/storage of historical datasets and replay artifacts.
 
 ## Design
-
-<!-- Key patterns, abstractions, architectural decisions -->
+Strict Rust types, native computation, minimal speculation.
 
 ## Flow
-
-<!-- How does data/control flow through this module? -->
+Upstream core/features → archives computation → downstream consumers.
 
 ## Integration
-
-<!-- How does it connect to other parts of the system? -->
+Used by workspace pipeline; depends on core/features.
