@@ -1,7 +1,7 @@
 // Kraken WebSocket v2 public market-data ingestion primitives.
 use anyhow::{Context, Result};
 use futures::{SinkExt, StreamExt};
-use quantaradar_core::{OrderBookSnapshot, TradeTick};
+use quantaradar_core::{OrderBookSnapshot, OrderSide, TradeTick};
 use serde_json::{json, Value};
 use tokio::sync::mpsc;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
@@ -20,7 +20,7 @@ pub async fn stream(pair: &str, depth: u16, out: mpsc::Sender<MarketEvent>) -> R
 async fn parse_message(text:&str,out:&mpsc::Sender<MarketEvent>)->Result<()> {
     let v:Value=serde_json::from_str(text)?; let channel=v.get("channel").and_then(Value::as_str).unwrap_or(""); let typ=v.get("type").and_then(Value::as_str).unwrap_or("");
     if typ!="update" && typ!="snapshot" { return Ok(()); }
-    if channel=="trade" { if let Some(items)=v.get("data").and_then(Value::as_array){for t in items{let side=t.get("side").and_then(Value::as_str).unwrap_or("").to_owned();let price=as_f64(t.get("price"))?;let qty=as_f64(t.get("qty"))?;let ts=t.get("timestamp").and_then(Value::as_str).unwrap_or("").parse::<i64>().unwrap_or(0);let _=out.send(MarketEvent::Trade(TradeTick{ts,price,quantity:qty,side})).await;}}}
+    if channel=="trade" { if let Some(items)=v.get("data").and_then(Value::as_array){for t in items{let side_str=t.get("side").and_then(Value::as_str).unwrap_or(""); let side=match side_str { "buy" => OrderSide::Buy, "sell" => OrderSide::Sell, _ => OrderSide::Buy }; let price=as_f64(t.get("price"))?; let qty=as_f64(t.get("qty"))?; let ts=t.get("timestamp").and_then(Value::as_str).unwrap_or("").parse::<i64>().unwrap_or(0); let _=out.send(MarketEvent::Trade(TradeTick{ts,price,quantity:qty,side})).await;}}}
     if channel=="book" { if let Some(items)=v.get("data").and_then(Value::as_array){for b in items{let bid=level_price(b.get("bid"));let ask=level_price(b.get("ask"));let book=OrderBookSnapshot{ts:0,bid,ask,bid_depth:levels(b.get("bids")),ask_depth:levels(b.get("asks"))};let _=out.send(MarketEvent::Book(book)).await;}}}
     Ok(())
 }

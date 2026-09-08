@@ -325,6 +325,7 @@ Verdict: ALL PASS with documented variances V1–V6 (evidence in `.omo/evidence/
 - Add replay verification checklist (input manifest = output manifest + state hash)
 - Add reproducibility dependency list (9 fields)
 - Add lifecycle stage gates (raw immutable → normalized reproducible → derived versioned)
+- [x] Phase-01 rewrite verified complete (2026-09-08): 11 observation field groups per ARCHITECTURE.md:42, 8-stage lifecycle with stage gates, reproducibility contract, no fenced code blocks
 
 ### D.2 phase-02-market-intelligence.md
 **A Mapping References**: Master sections 4,16,17,18,19,20,34,36,37 + PLAN sections 3,4,5,6,7,20,22,23

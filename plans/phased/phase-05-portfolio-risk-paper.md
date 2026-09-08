@@ -13,11 +13,10 @@ Constraints:
 - Liquidity-adjusted exposure: weight × liquidity_score.
 
 ## 5.2 Risk Engine (minimum controls)
-```text
 per-trade risk → portfolio heat → max position → max cluster exposure →
 max leverage → max drawdown → volatility targeting → VaR / CVaR →
 stress tests → liquidity limits → correlation limits → regime-based reduction
-```
+
 Dynamic scaling:
 - Normal regime → 100% risk.
 - High vol → 50%.
@@ -32,19 +31,22 @@ Reconciliation: compare paper fills vs simulated book state; flag discrepancies.
 
 ## 5.4 Paper Account Initialization
 No `Default` derivation. Explicit initialization:
-```rust
 PaperAccount::new(initial_cash: f64, initial_equity: f64)
-```
 Numeric fields initialized to coherent starting state, not zero.
 
 ## 5.5 Execution Boundary (isolated, disabled by default)
-```text
 Research → Promotion Gate → Paper → Shadow → Canary → Live
-```
-Live adapter is a separate crate/module, disabled by default, with no exchange credentials in repo.
+
+Live adapter is a separate crate/module, disabled by default, with no exchange credentials in repo. Never strategy → exchange directly.
+
+## 5.6 Design Goals
+- Goal 1: Dynamic asset discovery instead of hard-coded universes.
+- Goal 4: Explicit trading costs.
+- Goal 7: Liquidity as a hard constraint.
+- Goal 8: Live execution isolated from research until promotion gates pass.
 
 ## Working version complete when:
-- [ ] Portfolio optimizer produces liquidity-adjusted weights with cluster limits.
-- [ ] Risk engine applies regime-based scaling and drawdown throttling.
-- [ ] Paper account tracks unrealized PnL, pending orders, and reconciliation.
-- [ ] Live adapter is isolated and disabled by default.
+- [x] Portfolio optimizer produces liquidity-adjusted weights with cluster limits.
+- [x] Risk engine applies regime-based scaling and drawdown throttling.
+- [x] Paper account tracks unrealized PnL, pending orders, and reconciliation.
+- [x] Live adapter is isolated and disabled by default.

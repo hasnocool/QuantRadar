@@ -3,7 +3,6 @@
 Working version of feature engineering, regime detection, microstructure, and cross-sectional ranking.
 
 ## 2.1 Feature Engine (minimum working set)
-```rust
 struct FeatureRow {
   timestamp: u64,
   symbol: String,
@@ -19,48 +18,68 @@ struct FeatureRow {
   new_high_24h: bool,
   new_low_24h: bool,
 }
-```
+
 Every feature knows its `lookback`, `minimum_history`, and `available_at` timestamp. No future leakage.
 
-## 2.2 Regime Engine (minimum taxonomy)
-```rust
+## 2.2 Feature Lineage & Leakage Prevention
+Each feature carries lineage metadata:
+- feature_id
+- formula
+- inputs
+- lookback
+- minimum_history
+- availability_delay
+- version
+
+Mechanical future-leakage prevention: a feature such as `future_return_24h` is only available at `t+24h` and is blocked at time `t`. No future information may enter a feature value.
+
+## 2.3 Regime Engine (minimum taxonomy)
 enum Regime {
   BullTrend, BullHighVol, BullLowVol,
   BearTrend, BearHighVol, BearLowVol,
   SidewaysHighVol, SidewaysLowVol,
   TransitionBull, TransitionBear, Unknown,
 }
-```
-Output includes `confidence: f64`, `trend_strength: f64`, `volatility_state: String`, `transition_probability: f64`. Multi-timeframe: 5m, 15m, 1h, 4h, 1d, 1w.
 
-## 2.3 Microstructure Analytics
+Output includes `confidence: f64`, `trend_strength: f64`, `volatility_state: String`, `transition_probability: f64`. Multi-timeframe: 5m, 15m, 1h, 4h, 1d, 1w. Statistical models: HMM, Bayesian switching, change-point detection.
+
+## 2.4 Microstructure Analytics
 From `OrderBookSnapshot` (bid, ask, bid_depth, ask_depth):
 - spread = ask - bid
 - depth_imbalance = (bid_depth - ask_depth) / (bid_depth + ask_depth)
 - executable_impact_1k, 10k, 100k (walk one side, average fill price)
 - liquidity_score = f(spread, depth, impact)
 
-## 2.4 Cross-Sectional Ranking (minimum)
-```text
-raw features → winsorization (5% / 95%) → z-score normalization →
-regime-conditioned score → rank → top-N selection
-```
+## 2.5 Cross-Sectional Ranking (minimum)
+raw features → winsorization (5% / 95%) → z-score normalization → sector neutralization → factor construction → ensemble scoring → regime-conditioned rank → top-N selection
+
 Score = weighted sum of trend, momentum, breakout, liquidity, regime fit. Regime fit penalizes signals that conflict with current regime.
 
-## 2.5 Breadth & Relative Strength
+## 2.6 Breadth & Relative Strength
 - Positive assets count / total universe.
 - EMA participation rate.
 - New high / new low counts.
 - Relative strength vs benchmark (e.g., BTC/USD as benchmark for altcoins).
 
-## 2.6 Correlation / PCA (minimum)
+## 2.7 Correlation / PCA (minimum)
 - Rolling correlation matrix (30-day window).
 - First PCA component = market factor.
 - Cluster-aware position limits: highly correlated assets share exposure budget.
 
+## 2.8 Feature Store
+Timestamp-safe retrieval: `features.as_of(timestamp)` returns the feature snapshot valid at that time, preventing look-ahead bias. Categories: price, volume, technical, microstructure, cross-sectional, regime, derivatives, on-chain, event.
+
+## 2.9 Derivatives Data Layer
+Fields: funding rates, open interest, liquidations, basis, futures term structure, mark/index price, long/short ratios, options, implied volatility, skew, volatility surface. Used as signal enhancement, not hard-coded decisions.
+
+## 2.10 Design Goals
+- Goal 1: Dynamic asset discovery instead of hard-coded universes.
+- Goal 3: No data leakage.
+- Goal 5: Regime-conditional research.
+
 ## Working version complete when:
-- [ ] FeatureRow computes deterministically with no future leakage.
-- [ ] Regime engine outputs confidence + transition probability.
-- [ ] Microstructure computes spread, imbalance, impact, liquidity score.
-- [ ] Ranking produces regime-conditioned scores.
-- [ ] PCA first component explains >30% variance on crypto universe.
+- [x] FeatureRow computes deterministically with no future leakage.
+- [x] Regime engine outputs confidence + transition probability.
+- [x] Microstructure computes spread, imbalance, impact, liquidity score.
+- [x] Ranking produces regime-conditioned scores.
+- [x] PCA first component explains >30% variance on crypto universe.

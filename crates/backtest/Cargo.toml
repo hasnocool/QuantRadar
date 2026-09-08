@@ -9,3 +9,4 @@ license.workspace = true
 chrono.workspace = true
 serde.workspace = true
 quantaradar-core = { path = "../core" }
+quantaradar-microstructure = { path = "../microstructure" }

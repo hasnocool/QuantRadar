@@ -1,6 +1,6 @@
 // QuantRadar risk controls and paper-trading execution simulator. No live broker implementation here.
 use chrono::{DateTime, Utc};
-use quantaradar_core::{OrderBookSnapshot, Signal};
+use quantaradar_core::{Direction, OrderBookSnapshot, Signal};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -22,7 +22,7 @@ pub fn size_position(equity:f64, entry:f64, stop:f64, risk_pct:f64, max_position
 }
 
 pub fn approve(signal:&Signal, liquidity_score:f64, equity:f64, active_positions:usize, limits:&RiskLimits, entry:f64, stop:f64)->Option<OrderIntent>{
-    if signal.direction!="LONG" || signal.score<=0.0 || liquidity_score<limits.min_liquidity_score || active_positions>=limits.max_concurrent_positions{return None;}
+    if signal.direction != Direction::Long || signal.score<=0.0 || liquidity_score<limits.min_liquidity_score || active_positions>=limits.max_concurrent_positions{return None;}
     let qty=size_position(equity,entry,stop,limits.max_portfolio_heat,limits.max_position_pct); if qty<=0.0{return None;}
     Some(OrderIntent{id:Uuid::new_v4(),ts:signal.ts,symbol:signal.symbol.clone(),side:"buy".into(),qty,limit_price:Some(entry),reason:signal.rationale.join("; ")})
 }

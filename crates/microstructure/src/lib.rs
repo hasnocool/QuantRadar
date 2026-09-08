@@ -1,5 +1,5 @@
 // QuantRadar microstructure analytics: order-book/trade-flow models and executable-liquidity scoring.
-use quantaradar_core::{OrderBookSnapshot, TradeTick};
+use quantaradar_core::{OrderBookSnapshot, OrderSide, TradeTick};
 
 #[derive(Clone, Debug, Default)]
 pub struct MicrostructureFeatures {
@@ -24,7 +24,7 @@ pub fn analyze(book: &OrderBookSnapshot, trades: &[TradeTick]) -> Microstructure
     let total_depth = bid_depth_usd + ask_depth_usd;
     let depth_imbalance = if total_depth > 0.0 { (bid_depth_usd - ask_depth_usd) / total_depth } else { 0.0 };
     let trade_volume_usd: f64 = trades.iter().map(|t| t.price*t.quantity).sum::<f64>();
-    let buy_usd: f64 = trades.iter().filter(|t| t.side == "buy").map(|t| t.price*t.quantity).sum::<f64>();
+    let buy_usd: f64 = trades.iter().filter(|t| t.side == OrderSide::Buy).map(|t| t.price*t.quantity).sum::<f64>();
     let trade_buy_ratio = if trade_volume_usd > 0.0 { buy_usd / trade_volume_usd } else { 0.5 };
     let avg_trade_usd = if !trades.is_empty() { trade_volume_usd / trades.len() as f64 } else { 0.0 };
     let impact = |size: f64, asks: bool| -> f64 {
@@ -50,4 +50,4 @@ pub fn analyze(book: &OrderBookSnapshot, trades: &[TradeTick]) -> Microstructure
 }
 
 #[cfg(test)]
-mod tests { use super::*; #[test] fn feature_defaults_are_finite_except_unpriced_impact(){ let b=OrderBookSnapshot{ts:1,bid:100.0,ask:100.1,bid_depth:vec![(100.0,20.0)],ask_depth:vec![(100.1,20.0)]}; let t=vec![TradeTick{ts:1,price:100.1,quantity:2.0,side:"buy".into()}]; let f=analyze(&b,&t); assert!(f.spread_bps > 0.0); assert!(f.trade_buy_ratio > 0.99); assert!(f.liquidity_score > 0.0); } }
+mod tests { use super::*; #[test] fn feature_defaults_are_finite_except_unpriced_impact(){ let b=OrderBookSnapshot{ts:1,bid:100.0,ask:100.1,bid_depth:vec![(100.0,20.0)],ask_depth:vec![(100.1,20.0)]}; let t=vec![TradeTick{ts:1,price:100.1,quantity:2.0,side:OrderSide::Buy}]; let f=analyze(&b,&t); assert!(f.spread_bps > 0.0); assert!(f.trade_buy_ratio > 0.99); assert!(f.liquidity_score > 0.0); } }

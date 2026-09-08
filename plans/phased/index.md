@@ -6,9 +6,9 @@ Based on PLAN.md (2401 lines, 36 sections). Each phase describes the minimum wor
 
 | Phase | File | Category | Key Deliverable |
 |---|---|---|---|
-| 1 | `phase-01-data-foundation.md` | Persistent data, replay, typed domain | `Direction` enum, replay engine, sequence validation |
-| 2 | `phase-02-market-intelligence.md` | Features, regime, microstructure, ranking | `FeatureRow`, regime confidence, PCA component |
-| 3 | `phase-03-screener-signal.md` | Screeners, signal ensemble, pipeline | 7 screener families, composite score, DSL |
+| 1 | `phase-01-data-foundation.md` | Persistent data, replay, typed domain | `Direction` enum, replay engine, sequence validation, observation schema (ARCHITECTURE.md:42) |
+| 2 | `phase-02-market-intelligence.md` | Features, regime, microstructure, ranking | `FeatureRow`, regime confidence, PCA component, feature store |
+| 3 | `phase-03-screener-signal.md` | Screeners, signal ensemble, pipeline | 7 screener families, composite score, DSL, signal contract (ARCHITECTURE.md:44-46) |
 | 4 | `phase-04-backtest-validation.md` | Backtest, WFO, robustness, champion/challenger | Realistic execution, expanding WFO, promotion gate |
 | 5 | `phase-05-portfolio-risk-paper.md` | Portfolio optimizer, risk, paper trading | Liquidity-adjusted weights, regime scaling, paper state machine |
 | 6 | `phase-06-production-monitoring.md` | Experiment registry, monitoring, autonomous loop | Registry, lineage, monitoring, continuous loop |
@@ -36,8 +36,7 @@ Each phase file defines:
 - The verification checklist (what must pass for phase complete).
 - No speculative abstractions, no future-proofing beyond the working version.
 
-## Architecture Reminder (from PLAN.md)
-```text
+## Architecture Reminder (from PLAN.md + ARCHITECTURE.md)
 Exchange Connectors → Real-Time Event Bus → Immutable Market Data + Replay
   ↓
 Feature Store → Intelligence Layer (regime / factors / breadth / RS / microstructure)
@@ -49,7 +48,20 @@ Strategy Lab (generate + optimize) → Validation Engine (WFO / OOS / MC / PBO)
 Model Registry (Champion / Challenger) → Portfolio Optimizer → Risk Engine
   ↓
 Paper Execution → Monitoring → Strategy Decay Detection → Research Memory
-```
+
+Design goals (ARCHITECTURE.md:49-57) apply across all phases:
+1. Dynamic asset discovery instead of hard-coded universes.
+2. Bounded asynchronous concurrency.
+3. No data leakage.
+4. Explicit trading costs.
+5. Regime-conditional research.
+6. Failed experiments retained for future learning.
+7. Liquidity as a hard constraint.
+8. Live execution isolated from research until promotion gates pass.
+
+Observation fields (ARCHITECTURE.md:42) and signal contract (ARCHITECTURE.md:44-46) are the canonical schemas for Phase 1 and Phase 3 respectively.
+
+Replay / reproducibility / lifecycle (from C mapping): replay verification checklist (input manifest = output manifest + state hash equality), reproducibility dependency list (9 fields), lifecycle stage gates (raw immutable → normalized reproducible → derived versioned).
 
 ## Next Step
 Read each phase file. Delegate implementation via `task()` with the 6-section prompt structure. Verify with `lsp_diagnostics`, build, tests, and manual file review. Update `.omo/plans/` checkboxes as tasks complete.
