@@ -1,0 +1,9 @@
+# QuantRadar technical feature engine
+[package]
+name = "quantaradar-features"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+[dependencies]
+quantaradar-core = { path = "../core" }
