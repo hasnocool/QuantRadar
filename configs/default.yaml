@@ -1,0 +1,33 @@
+# QuantRadar default research configuration
+project: QuantRadar
+exchange: kraken
+quote_assets: [USD, USDT, EUR, BTC, ETH]
+data:
+  intervals_minutes: [1, 5, 15, 60, 240, 1440]
+  lookback_days: 730
+  max_concurrency: 8
+  min_history_bars: 220
+liquidity:
+  min_daily_quote_volume: 1000000
+  max_spread_bps: 50
+  executable_sizes_usd: [1000, 10000, 100000, 1000000]
+regime:
+  trend_threshold: 0.015
+  high_vol_threshold: 0.045
+  low_vol_threshold: 0.018
+screeners:
+  enabled: [trend, breakout, volatility_expansion, mean_reversion, relative_strength, relative_weakness, volume, anomaly]
+  top_n: 30
+validation:
+  forward_horizons: [1, 4, 24, 72, 168]
+  train_bars: 5000
+  test_bars: 500
+  step_bars: 250
+  min_oos_trades: 30
+  fees_bps: 8
+  slippage_bps: 3
+risk:
+  max_position_pct: 0.10
+  max_portfolio_risk_pct: 0.02
+  max_correlated_positions: 2
+  max_daily_loss_pct: 0.03
