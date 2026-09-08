@@ -47,7 +47,7 @@ Status: Implemented = concrete logic verified; Stub = working type/function; Des
 Status table (current as of last audit): 35 sections; workspace expanded with new/ext crates (`data-quality`, `ingestion`, `persistent-data`, `storage`, `archives`, `replay`, `event_bus`, `events`, `multi_exchange`, `exchange-binance`, `exchange-coinbase`, `websocket`, `feature-engine`, `feature-store`, `regime-detector`, `ranking`, `ensemble`, `signal-ensemble`, `backtest_engine`, `strategy_dsl`, `portfolio_risk`, `live-exec`, `optimization`, `freqtrade_integration`, `monitoring`, `scheduler`, `experiment`, `model_registry`, `test-scale`, `rate-limiter`, `paper-trading`/`paper`, `universe_history`, etc.). 5 fully implemented (#10, #11, #14, #23, #24); 26 have working stubs/code; 0 empty source files; workspace builds; binary `quantaradar 0.2.0` verified.
 
 ```
-Implemented fully: #10 Direction, #11 PaperAccount, #14 Registry, #23 FeatureStore, #24 Pipeline
+Implemented fully: #1 Persistent storage (persist_dataset + test), #10 Direction, #11 PaperAccount, #14 Registry, #23 FeatureStore, #24 Pipeline
 Implemented (stub + methods): #8 DSL, #9 Engine, #12 VaR, #13 Validation, #15 ModelReg, #16 Lineage, #17 UnivHistory, #18 Events, #19 MultiEx, #20 Derivatives, #21 EventBus, #22 Sentiment, #25 Ensemble, #26 ExpReturn, #31 Freqtrade
 Design-required (needs spec): #29 Monitoring, #35 Replay (stubs present; full engine deferred per #1 persistence)
 ```
