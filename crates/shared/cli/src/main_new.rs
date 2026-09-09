@@ -640,7 +640,34 @@ async fn handle_utils(cmd: UtilsCommand) -> Result<()> {
             Ok(())
         }
         UtilsCommand::Replay { dataset_id, symbol, start } => {
-            println!("Replaying dataset {}", dataset_id);
+            let storage_base = std::env::var("QUANTARADAR_STORAGE_BASE")
+                .unwrap_or_else(|_| "data".to_string());
+            let storage_path = Path::new(&storage_base);
+            let dataset_id_val = dataset_id.clone();
+            let symbol_val = symbol.clone().unwrap_or_else(|| "BTC/USD".into());
+            let start_ts = start
+                .as_ref()
+                .map(|s| {
+                    s.parse::<u64>()
+                        .unwrap_or_else(|_| chrono::Utc::now().timestamp_millis() / 1000)
+                })
+                .unwrap_or_else(|| chrono::Utc::now().timestamp_millis() / 1000);
+            let end_ts = chrono::Utc::now().timestamp_millis() / 1000 + 86400000; // 1 day later
+            let code_commit = std::env::var("VERGEN_GIT_COMMIT_HASH").unwrap_or_else(|_| "unknown".into());
+            let config_hash = "default".into();
+
+            match replay(storage_path, &dataset_id_val, &symbol_val, start_ts, end_ts, &code_commit, &config_hash) {
+                Ok(result) => {
+                    println!("Replay dataset: {}", result.state.dataset_id);
+                    println!("Market events: {}", result.market_events.len());
+                    println!("Final portfolio cash: {:.2}", result.final_portfolio.cash);
+                    println!("Final PnL: {:.2}", result.final_pnl.total_pnl);
+                    println!("Checksum: {}", result.checksum);
+                }
+                Err(e) => {
+                    println!("Replay error: {}", e);
+                }
+            }
             Ok(())
         }
         UtilsCommand::Report { type_, output } => {

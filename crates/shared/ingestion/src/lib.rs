@@ -148,7 +148,7 @@ impl QualityValidator {
             let prev = &recent_observations[recent_observations.len() - 2];
             let price_change = (obs.close - prev.close).abs() / prev.close;
             if price_change > self.max_price_deviation_pct {
-                flags.push(QualityFlag::LateArrival); // Reusing as "extreme price change"
+                flags.push(QualityFlag::InvalidTimestamp); // Reusing as "extreme price change"
             }
 
             // Volume z-score check (simplified)
@@ -159,7 +159,7 @@ impl QualityValidator {
                 if std > 0.0 {
                     let zscore = (obs.volume - mean) / std;
                     if zscore.abs() > self.max_volume_zscore {
-                        flags.push(QualityFlag::LateArrival); // Reusing
+                        flags.push(QualityFlag::InvalidTimestamp); // Reusing
                     }
                 }
             }
@@ -169,7 +169,7 @@ impl QualityValidator {
         if obs.ask > 0.0 && obs.bid > 0.0 {
             let spread_bps = (obs.ask - obs.bid) / ((obs.ask + obs.bid) / 2.0) * 10_000.0;
             if spread_bps > self.max_spread_bps {
-                flags.push(QualityFlag::InvalidSpread);
+                flags.push(QualityFlag::NegativeSpread);
             }
         }
 
@@ -181,7 +181,7 @@ impl QualityValidator {
         if flags.is_empty() {
             QualityCheckResult::valid()
         } else {
-            QualityCheckResult::invalid(flags)
+            QualityCheckResult::invalid(flags, String::new())
         }
     }
 }

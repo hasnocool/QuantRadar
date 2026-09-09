@@ -10,3 +10,15 @@ anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 chrono.workspace = true
+sha2.workspace = true
+
+# Core domain models and types
+quantaradar-core = { path = "../../shared/core" }
+quantaradar-data-model = { path = "../../shared/data-model" }
+
+# Parquet/Aarrow for raw archive reading
+parquet = { version = "53", features = ["snap", "arrow"] }
+arrow = { version = "53", features = ["csv", "json", "ipc"] }
+
+# UUID for event IDs
+uuid = { workspace = true, features = ["v4", "serde"] }

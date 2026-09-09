@@ -6,6 +6,20 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FeatureCategory {
+    Price,
+    Volume,
+    Technical,
+    Microstructure,
+    CrossSectional,
+    Regime,
+    Derivatives,
+    OnChain,
+    Event,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FeatureStore {
     pub path: String,
@@ -24,6 +38,7 @@ pub struct FeatureMetadata {
     pub lookback: usize,
     pub availability_delay: usize,
     pub last_computed: Option<DateTime<Utc>>,
+    pub category: FeatureCategory,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,7 +59,7 @@ impl FeatureStore {
         }
     }
 
-    pub fn register_feature(&mut self, name: String, formula: String, inputs: Vec<String>, lookback: usize, delay: usize) {
+    pub fn register_feature(&mut self, name: String, formula: String, inputs: Vec<String>, lookback: usize, delay: usize, category: FeatureCategory) {
         // We need the name for both the features map key and the lineage record.
         // Clone it so each can take ownership independently.
         let name_for_features = name.clone();
@@ -57,6 +72,7 @@ impl FeatureStore {
             lookback,
             availability_delay: delay,
             last_computed: None,
+            category,
         };
         self.features.insert(name_for_features, meta);
         self.lineage.push(FeatureLineage {
@@ -194,15 +210,17 @@ mod tests {
     #[test]
     fn test_feature_registration() {
         let mut store = FeatureStore::new("/tmp/test");
-        store.register_feature(
+store.register_feature(
             "ema_20".into(),
             "EMA(20)".into(),
             vec!["close".into()],
             20,
             0,
+            FeatureCategory::Technical,
         );
         assert!(store.features.contains_key("ema_20"));
         assert_eq!(store.features["ema_20"].lookback, 20);
+        assert_eq!(store.features["ema_20"].category, FeatureCategory::Technical);
         assert_eq!(store.lineage.len(), 1);
     }
 

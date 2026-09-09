@@ -3,10 +3,11 @@
 - First phase (Data Foundation) establishes typed domain (Direction/OrderSide/EventKind enums) and observation schema (ARCHITECTURE.md:42)
 - Replay engine requires manifest + raw archive determinism: same input + same commit = same result
 - Sequence validation uses WebSocket sequence_numbers; gaps trigger replay from last known sequence
-- Data quality validator checks: timestamp monotonicity, symbol consistency, price >= 0, volume >= 0, spread >= 0
+- Data quality validator implements 5 checks: timestamp monotonicity (InvalidTimestamp flag), symbol consistency (InvalidSymbol flag), price non-negative (NegativePrice flag), volume non-negative (NegativeVolume flag), spread >= 0 (NegativeSpread flag)
+- Fails fast: validation rejects observation on first invalid check, routes bad observations to rejected/ directory with reason string
 - FeatureRow features must have lookback, minimum_history, availability_delay to prevent future leakage
 - Regime engine supports 11 variants across 3 dimensions (trend_aligned, vol_aligned, confidence)
-- Microstructure analytics: spread_bps, depth_imbalance, executable_impact_*, liquidity_score
+- Microstructure analytics: spread_bps, depth_imbalance, executable_impact_*, liquidity_score; analyze() enforces all invariants: spread_bps >= 0, bid_depth_usd >= 0, depth_imbalance in [-1,1], trade_buy_ratio in [0,1], impact_bps_* >= 0 or INFINITY, liquidity_score > 0 via clamped computations and edge-case guards
 - Cross-sectional ranking pipeline: raw features → winsorization → z-score → sector neutralization → factor construction → ensemble scoring → regime-conditioned rank
 - PCA first component captures market factor; cluster-aware position limits for highly correlated assets
 - Signal ensemble: weighted average of family scores, weighted by regime compatibility
@@ -16,8 +17,12 @@
 - Anti-overfitting stack: walk-forward → OOS → parameter perturbation → cost perturbation → bootstrap → Monte Carlo → trade-order randomization → regime testing → cross-asset → multiple-hypothesis correction
 - Champion/challenger promotion: OOS Sharpe > champion, max drawdown < champion, profit factor > 1.5, robustness pass rate > 70%
 - Phase 1 Data Foundation: typed domain model with Direction(Long/Short/Flat), OrderSide(Buy/Sell), EventKind(Breakout/Breakdown/VolumeAnomaly/VolatilitySpike/RegimeChange) enums replacing all free-form strings. All signals, orders, and events now use strongly typed enums.
-- Portfolio optimizer: inputs = signals → expected returns → correlation matrix → liquidity → volatility; outputs = position weights
+- Portfolio optimizer: inputs = signals → expected returns → correlation matrix → liquidity → volatility; outputs = position weights with constraints (max position %, max portfolio heat, cluster limits, liquidity-adjusted exposure)
 - Risk engine: dynamic scaling by regime (normal=100%, high vol=50%, extreme=25%, dislocation=0%)
+- Optimization approach: mean-variance with iterative capping and redistribution; weights sum to ≤ 1.0 (remaining weight is undeployed/cash) when max position constraint is tight relative to number of assets
+- Cluster limits: highly correlated asset groups share a combined budget of max_position_pct / group_size
+- Liquidity-adjusted exposure: initial weights scaled by liquidity_score before constraint application
+- Key design decision: cap-then-redistribute (no renormalization) to avoid cycling when n × max_position_pct < 1.0; weights may sum to < 1.0 with remaining weight as cash
 - Paper trading state machine: Pending → Submitted → PartiallyFilled → Filled/Rejected/Cancelled/Expired
 - No Default derivation: explicit PaperAccount::new(initial_cash, initial_equity)
 - Live execution boundary: Research → Promotion Gate → Paper → Shadow → Canary → Live; disabled by default
@@ -34,3 +39,5 @@
 - Failed experiments retained: Phase 6 ( experiment registry with FAILED/REGIME_DEPENDENT tags)
 - Liquidity as hard constraint: Phase 1 (executable depth gate), Phase 4 (backtest liquidity gate), Phase 5 (portfolio liquidity-adjusted weights)
 - Live execution isolated: Phase 5 (Research → Promotion → Paper → Shadow → Canary → Live), Phase 6 (promotion decision gate)
+- Replay engine (Phase 1): deterministic dataset replay from manifest + raw archive with reproducibility tracking (code_commit, config_hash, dataset_id, feature_versions, strategy_version, model_version, random_seed, execution_model_version)
+- Phase 3 Screener & Signal Pipeline (Sep 2026): implemented 7 independent screener families (TREND, BREAKOUT, MEAN REVERSION, MOMENTUM, VOL EXPANSION, MICROSTRUCTURE, EVENT), each producing typed Signal with full ARCHITECTURE.md:44-46 contract (timestamp, symbol, family, direction, score, regime, rationale, feature evidence, strategy/config_version). Signal struct updated with strategy and config_version fields. All families pass cargo check.

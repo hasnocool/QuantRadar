@@ -35,7 +35,7 @@ pub fn feature_rows(symbol:&str,bars:&[Bar])->Vec<FeatureRow>{
         let dist=e20[i].zip(at[i]).map(|(e,a)|(closes[i]-e)/a.max(1e-12));
         let high=i>=20&&closes[i]>closes[i-20..i].iter().copied().fold(f64::NEG_INFINITY,f64::max);
         let low=i>=20&&closes[i]<closes[i-20..i].iter().copied().fold(f64::INFINITY,f64::min);
-        FeatureRow{ts:b.ts,symbol:symbol.into(),close:b.close,returns_1:lag(1),returns_4:lag(4),returns_24:lag(24),returns_72:lag(72),ema_20:e20[i],ema_50:e50[i],ema_200:e200[i],rsi_14:rs[i],atr_14:at[i],atr_pct:at[i].map(|v|v/b.close),realized_vol_20:rv,bb_width_20:width,volume_z_20:vz,distance_ema20_atr:dist,breakout_20:high,new_high_20:high,new_low_20:low}
+        FeatureRow{ts:b.ts,symbol:symbol.into(),close:b.close,returns_1:lag(1),returns_4:lag(4),returns_24:lag(24),returns_72:lag(72),ema_20:e20[i],ema_50:e50[i],ema_200:e200[i],rsi_14:rs[i],atr_14:at[i],atr_pct:at[i].map(|v|v/b.close),realized_vol_20:rv,bb_width_20:width,volume_z_20:vz,distance_ema20_atr:dist,breakout_20:high,new_high_20:high,new_low_20:low,sector:None}
     }).collect()
 }
 

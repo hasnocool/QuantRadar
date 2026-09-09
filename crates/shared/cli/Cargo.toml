@@ -27,3 +27,4 @@ quantaradar-backtest = { path = "../backtest" }
 quantaradar-reporting = { path = "../reporting" }
 quantaradar-storage = { path = "../storage" }
 quantaradar-data-model = { path = "../data-model" }
+quantaradar-replay = { path = "../../standalone/replay" }

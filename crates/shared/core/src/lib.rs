@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+//#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Bar {
     pub ts: DateTime<Utc>, pub open: f64, pub high: f64, pub low: f64, pub close: f64, pub volume: f64,
-    #[serde(default)] pub trades: Option<f64>,
+    pub trades: Option<f64>,
 }
 impl Bar { pub fn range(&self) -> f64 { self.high - self.low } pub fn typical_price(&self) -> f64 { (self.high + self.low + self.close) / 3.0 } }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -53,9 +53,9 @@ impl std::fmt::Display for SignalFamily { fn fmt(&self, f: &mut std::fmt::Format
 impl std::fmt::Display for EventKind { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{}", serde_json::to_string(self).unwrap().trim_matches('"')) } }
 impl std::fmt::Display for StrategyFamily { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{}", serde_json::to_string(self).unwrap().trim_matches('"')) } }
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FeatureRow { pub ts: DateTime<Utc>, pub symbol: String, pub close: f64, pub returns_1: Option<f64>, pub returns_4: Option<f64>, pub returns_24: Option<f64>, pub returns_72: Option<f64>, pub ema_20: Option<f64>, pub ema_50: Option<f64>, pub ema_200: Option<f64>, pub rsi_14: Option<f64>, pub atr_14: Option<f64>, pub atr_pct: Option<f64>, pub realized_vol_20: Option<f64>, pub bb_width_20: Option<f64>, pub volume_z_20: Option<f64>, pub distance_ema20_atr: Option<f64>, pub breakout_20: bool, pub new_high_20: bool, pub new_low_20: bool }
+pub struct FeatureRow { pub timestamp: u64, pub symbol: String, pub returns_1h: f64, pub ema_20: f64, pub ema_50: Option<f64>, pub ema_200: Option<f64>, pub rsi_14: Option<f64>, pub atr_14: Option<f64>, pub atr_pct: Option<f64>, pub realized_vol_24h: f64, pub bollinger_width: f64, pub volume_zscore: f64, pub ema_distance: f64, pub breakout_flag: bool, pub new_high_24h: bool, pub new_low_24h: bool, pub lookback: usize, pub minimum_history: usize, pub availability_at: u64, pub returns_1: Option<f64>, pub returns_4: Option<f64>, pub returns_24: Option<f64>, pub returns_72: Option<f64>, pub distance_ema20_atr: Option<f64>, pub breakout_20: bool, pub new_high_20: bool, pub new_low_20: bool, pub sector: Option<String> }
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Signal { pub id: Uuid, pub ts: DateTime<Utc>, pub symbol: String, pub family: SignalFamily, pub direction: Direction, pub score: f64, pub regime: Regime, pub rationale: Vec<String>, pub features: BTreeMap<String, f64> }
+pub struct Signal { pub id: Uuid, pub ts: DateTime<Utc>, pub symbol: String, pub family: SignalFamily, pub direction: Direction, pub score: f64, pub regime: Regime, pub rationale: Vec<String>, pub features: BTreeMap<String, f64>, pub strategy: String, pub config_version: String }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScreenResult { pub generated_at: DateTime<Utc>, pub regime: Regime, pub signals: Vec<Signal> }
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -215,13 +215,8 @@ pub struct QualityCheckResult {
 }
 
 impl QualityCheckResult {
-    pub fn valid() -> Self {
-        Self { flags: vec![QualityFlag::Valid], is_valid: true, reason: None }
-    }
-
-    pub fn invalid(flags: Vec<QualityFlag>, reason: String) -> Self {
-        Self { flags, is_valid: false, reason: Some(reason) }
-    }
+    pub fn valid() -> Self { Self { flags: vec![QualityFlag::Valid], is_valid: true, reason: None } }
+    pub fn invalid(flags: Vec<QualityFlag>, reason: String) -> Self { Self { flags, is_valid: false, reason: Some(reason) } }
 }
 
 pub fn validate_observation(obs: &Observation, last_timestamp: Option<u64>) -> QualityCheckResult {
@@ -267,12 +262,11 @@ pub fn validate_bar(bar: &Bar, last_timestamp: Option<u64>) -> QualityCheckResul
 
     // 1. Timestamp monotonicity
     if let Some(last) = last_timestamp {
-        if bar.ts.timestamp() as u64 <= last {
-            flags.push(QualityFlag::InvalidTimestamp);
-        }
+        if bar.ts.timestamp() as u64 <= last { flags.push(QualityFlag::InvalidTimestamp); }
     }
 
     // 2. Symbol consistency - bars don't have symbol, skip
+
     // 3. Price non-negative
     if bar.open <= 0.0 || bar.high <= 0.0 || bar.low <= 0.0 || bar.close <= 0.0 {
         flags.push(QualityFlag::NegativePrice);

@@ -8,3 +8,5 @@ license.workspace = true
 [dependencies]
 anyhow.workspace = true
 serde.workspace = true
+ndarray = "0.15"
+serde_json.workspace = true

@@ -33,6 +33,7 @@ members = [
   "crates/standalone/registry",
   "crates/standalone/replay",
   "crates/standalone/logging",
+  "crates/standalone/report-gen",
   "crates/standalone/risk",
   "crates/standalone/scheduler",
   "crates/standalone/sentiment",

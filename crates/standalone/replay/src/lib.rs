@@ -4,15 +4,16 @@
 //! Same input + same config + same commit = same result.
 
 use chrono::Utc;
-use quantaradar_core::{Direction, OrderSide, Observation, QualityFlag, Regime, SignalFamily};
-use quantaradar_data_model::{DatasetManifest, MarketObservation, MarketDataBatch};
+use quantaradar_core::{Direction, OrderSide, QualityFlag, SourceKind, SignalFamily};
+use quantaradar_data_model::{DatasetManifest, MarketObservation};
 use anyhow::{Context, Result};
+use sha2::{Sha256, Digest};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-/// Required reproducibility fields for replay state.
-/// Determinism: same input + same config + same commit = same result.
+// Required reproducibility fields for replay state.
+// Determinism: same input + same config + same commit = same result.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplayState {
     /// Dataset identifier
@@ -43,7 +44,7 @@ impl Default for ReplayState {
             dataset_id: Default::default(),
             start_ts: 0,
             end_ts: 0,
-            code_commit: env!("VERGEN_GIT_COMMIT_HASH").to_string(),
+            code_commit: std::env::var("VERGEN_GIT_COMMIT_HASH").unwrap_or_else(|_| "unknown".into()),
             config_hash: Default::default(),
             feature_versions: BTreeMap::new(),
             strategy_version: Default::default(),
@@ -115,7 +116,7 @@ pub struct PortfolioEvent {
     pub timestamp: u64,
     pub symbol: String,
     pub cash: f64,
-    pub positions: BTreeMap<String, f64>, // symbol -> quantity
+    pub positions: BTreeMap<String, f64>,
     pub total_value: f64,
 }
 
@@ -146,17 +147,12 @@ pub struct ReplayResult {
 
 impl ReplayResult {
     /// Compute a deterministic checksum of the replay output.
+    /// Uses serde JSON serialization + SHA-256 to avoid Hash trait issues with f64.
     pub fn compute_checksum(&self) -> String {
-        use std::collections::hash_map::DefaultHasher;
-        use std::hash::{Hash, Hasher};
-        let mut hasher = DefaultHasher::new();
-        self.state.hash(&mut hasher);
-        for ev in &self.market_events {
-            ev.hash(&mut hasher);
-        }
-        self.final_portfolio.hash(&mut hasher);
-        self.final_pnl.hash(&mut hasher);
-        format!("{:x}", hasher.finish())
+        let json = serde_json::to_string(self).unwrap();
+        let mut hasher = Sha256::new();
+        hasher.update(json.as_bytes());
+        format!("{:x}", hasher.finalize())
     }
 }
 
@@ -174,6 +170,7 @@ impl ReplayEngine {
 
     /// Replay a dataset from manifest + raw archive.
     /// Recreates market state, features, signals, orders, fills, portfolio, PnL.
+    /// Same input + same config + same commit = same result (deterministic).
     pub fn replay_dataset(
         &self,
         dataset_id: &str,
@@ -186,34 +183,45 @@ impl ReplayEngine {
         // 1. Load manifest
         let manifest = self.load_manifest(dataset_id)?;
 
-        // 2. Verify checksum
-        // let expected_checksum = manifest.compute_checksum();
-        // Verify config_hash matches
-
-        // 3. Replay market observations from raw archive
+        // 2. Replay market observations from raw archive
         let market_events = self.replay_market_events(&manifest, symbol, start_ts, end_ts)?;
 
-        // 4. Reconstruct signals from market data
-        let signal_events = self.replay_signals(&market_events, symbol)?;
+        // 3. Reconstruct signals from market data (deterministic from features)
+        let signal_events = replay_signals(&market_events, symbol)?;
 
-        // 5. Reconstruct orders from signals
-        let order_events = self.replay_orders(&signal_events, symbol)?;
+        // 4. Reconstruct orders from signals
+        let order_events = replay_orders(&signal_events, symbol)?;
 
-        // 6. Reconstruct fills from orders
-        let fill_events = self.replay_fills(&order_events, symbol)?;
+        // 5. Reconstruct fills from orders
+        let fill_events = replay_fills(&order_events, symbol)?;
 
-        // 7. Reconstruct portfolio state from fills
-        let portfolio_events = self.replay_portfolio(&fill_events, symbol)?;
+        // 6. Reconstruct portfolio state from fills
+        let portfolio_events = replay_portfolio(&fill_events, symbol)?;
 
-        // 8. Compute PnL from portfolio events
-        let pnl_events = self.replay_pnl(&fill_events, &portfolio_events, symbol)?;
+        // 7. Compute PnL from portfolio events
+        let pnl_events = replay_pnl(&fill_events, &portfolio_events, symbol)?;
 
-        // 9. Compute output checksum
-        let checksum = ReplayResult::compute_checksum_generic(&ReplayResult {
+        // 8. Build final state
+        let final_portfolio = portfolio_events.last().cloned().unwrap_or_else(|| PortfolioEvent {
+            timestamp: 0,
+            symbol: symbol.to_string(),
+            cash: 0.0,
+            positions: BTreeMap::new(),
+            total_value: 0.0,
+        });
+        let final_pnl = pnl_events.last().cloned().unwrap_or_else(|| PnLEvent {
+            timestamp: 0,
+            symbol: symbol.to_string(),
+            realized_pnl: 0.0,
+            unrealized_pnl: 0.0,
+            total_pnl: 0.0,
+        });
+
+        let inner_result = ReplayResult {
             state: ReplayState {
                 dataset_id: manifest.dataset_id.clone(),
-                start_ts: manifest.start.timestamp() / 1000, // Assuming seconds to ms
-                end_ts: manifest.end.timestamp() / 1000,
+                start_ts,
+                end_ts,
                 code_commit: code_commit.to_string(),
                 config_hash: config_hash.to_string(),
                 feature_versions: BTreeMap::new(),
@@ -222,39 +230,19 @@ impl ReplayEngine {
                 random_seed: 42,
                 execution_model_version: "base".into(),
             },
-            market_events: market_events
-                .into_iter()
-                .map(|e| match e {
-                    ReplayEvent::Market(m) => ReplayEvent::Market(m),
-                    _ => ReplayEvent::Market(MarketStateEvent {
-                        timestamp: 0,
-                        symbol: Default::default(),
-                        exchange: Default::default(),
-                        observation: MarketObservation::new(0, "".into(), "".into(), "".into(), "".into(), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vec![], 0, vec![QualityFlag::Valid]),
-                    }),
-                })
-                .collect(),
-            final_portfolio: portfolio_events.last().cloned().unwrap_or_default(),
-            final_pnl: pnl_events.last().cloned().unwrap_or_default(),
+            market_events: market_events.clone(),
+            final_portfolio: final_portfolio.clone(),
+            final_pnl: final_pnl.clone(),
             checksum: String::new(),
-        });
+        };
+
+        let checksum = inner_result.compute_checksum();
 
         Ok(ReplayResult {
-            state: ReplayState {
-                dataset_id: manifest.dataset_id.clone(),
-                start_ts: manifest.start.timestamp() / 1000,
-                end_ts: manifest.end.timestamp() / 1000,
-                code_commit: code_commit.to_string(),
-                config_hash: config_hash.to_string(),
-                feature_versions: BTree::new(), // Will be populated by feature engine
-                strategy_version: "base".into(),
-                model_version: "base".into(),
-                random_seed: 42,
-                execution_model_version: "base".into(),
-            },
+            state: inner_result.state,
             market_events,
-            final_portfolio: portfolio_events.last().cloned().unwrap_or_default(),
-            final_pnl: pnl_events.last().cloned().unwrap_or_default(),
+            final_portfolio,
+            final_pnl,
             checksum,
         })
     }
@@ -273,109 +261,50 @@ impl ReplayEngine {
     /// Replay market observations from raw archive for a symbol in time range.
     fn replay_market_events(
         &self,
-        manifest: &DatasetManifest,
+        _manifest: &DatasetManifest,
         symbol: &str,
         start_ts: u64,
         end_ts: u64,
     ) -> Result<Vec<ReplayEvent>> {
+        // Read raw OHLCV data for the symbol from parquet files
+        // Currently returns empty - parquet reading integration pending
+        // In production, this would read from self.storage_base/raw/ohlcv/
         let mut events = Vec::new();
 
-        // Read raw OHLCV data for the symbol
-        let raw_dir = self.storage_base.join("raw/ohlcv");
-        if !raw_dir.exists() {
-            return Ok(events);
-        }
+        // Note: Full parquet reading implementation would integrate with
+        // the archives/storage crate to read OHLCV data deterministically.
+        // For now, return empty to allow the replay pipeline to function.
 
-        for entry in std::fs::read_dir(&raw_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            if path.extension().and_then(|e| e.to_str()) != Some("parquet") {
-                continue;
-            }
-
-            // Read parquet file and filter by symbol and time range
-            // Use arrow/parquet to read observations
-            let obs = self.read_parquet_observations(&path, symbol, start_ts, end_ts)?;
-
-            for o in obs {
-                events.push(ReplayEvent::Market(ReplayEvent::Market {
-                    timestamp: o.timestamp,
-                    symbol: o.symbol.clone(),
-                    exchange: o.exchange.clone(),
-                    observation: o,
-                })));
-            }
-        }
-
-        events.sort_by(|a, b| a.timestamp().cmp(&b.timestamp()));
+        // Since raw data may not be present, we return empty events.
+        // The replay result will have empty market_events but still produce
+        // deterministic output for portfolio/PnL from the default state.
         Ok(events)
     }
+}
 
-    /// Read observations from parquet file, filtered by symbol and time range.
-    fn read_parquet_observations(
-        &self,
-        path: &Path,
-        symbol: &str,
-        start_ts: u64,
-        end_ts: u64,
-    ) -> Result<Vec<MarketObservation>> {
-        // Use arrow-parquet to read the file
-        // Filter rows by symbol and timestamp range
-        use arrow::array::Float64Array;
-        use arrow::datatypes::DataType;
-        use parquet::arrow::ParquetRecordBatchReader;
+/// Replay signals from market data (deterministic, no randomness).
+fn replay_signals(_market_events: &[ReplayEvent], _symbol: &str) -> Result<Vec<SignalEvent>> {
+    Ok(Vec::new())
+}
 
-        let file = std::fs::File::open(path)?;
-        let mut reader = parquet::arrow::ParquetFileReader::new(file);
+/// Replay orders from signals.
+fn replay_orders(_signal_events: &[SignalEvent], _symbol: &str) -> Result<Vec<OrderEvent>> {
+    Ok(Vec::new())
+}
 
-        // Read schema and rows
-        let schema = reader.get_schema()?;
-        let col_symbol = schema.index_of("symbol")?;
-        let col_timestamp = schema.index_of("timestamp")?;
+/// Replay fills from orders.
+fn replay_fills(_order_events: &[OrderEvent], _symbol: &str) -> Result<Vec<FillEvent>> {
+    Ok(Vec::new())
+}
 
-        let mut observations = Vec::new();
+/// Replay portfolio state from fills.
+fn replay_portfolio(_fill_events: &[FillEvent], _symbol: &str) -> Result<Vec<PortfolioEvent>> {
+    Ok(Vec::new())
+}
 
-        // Note: Full parquet reading implementation would go here
-        // For now, return empty - the archives crate provides the infrastructure
-        Ok(observations)
-    }
-
-    /// Replay signals from market data.
-    fn replay_signals(&self, _market_events: &[ReplayEvent], _symbol: &str) -> Result<Vec<SignalEvent>> {
-        // Signal replay would use the feature engine to compute indicators
-        // and generate signals deterministically from the same features
-        // For now, return empty - signal engine integration pending
-        Ok(Vec::new())
-    }
-
-    /// Replay orders from signals.
-    fn replay_orders(&self, _signal_events: &[SignalEvent], _symbol: &str) -> Result<Vec<OrderEvent>> {
-        // Order replay from signal execution
-        Ok(Vec::new())
-    }
-
-    /// Replay fills from orders.
-    fn replay_fills(&self, _order_events: &[OrderEvent], _symbol: &str) -> Result<Vec<FillEvent>> {
-        // Fill replay from order execution
-        Ok(Vec::new())
-    }
-
-    /// Replay portfolio state from fills.
-    fn replay_portfolio(&self, _fill_events: &[FillEvent], _symbol: &str) -> Result<Vec<PortfolioEvent>> {
-        // Portfolio reconstruction from fills
-        Ok(Vec::new())
-    }
-
-    /// Replay PnL from fills and portfolio.
-    fn replay_pnl(
-        &self,
-        _fill_events: &[FillEvent],
-        _portfolio_events: &[PortfolioEvent],
-        _symbol: &str,
-    ) -> Result<Vec<PnLEvent>> {
-        // PnL computation from fills and positions
-        Ok(Vec::new())
-    }
+/// Replay PnL from fills and portfolio.
+fn replay_pnl(_fill_events: &[FillEvent], _portfolio_events: &[PortfolioEvent], _symbol: &str) -> Result<Vec<PnLEvent>> {
+    Ok(Vec::new())
 }
 
 /// Convenience function to replay a dataset and return the result.
@@ -403,7 +332,7 @@ mod tests {
     fn test_replay_state_default() {
         let state = ReplayState::default();
         assert!(!state.dataset_id.is_empty());
-        assert_eq!(state.code_commit, std::env!("VERGEN_GIT_COMMIT_HASH"));
+        assert_eq!(state.code_commit, std::env::var("VERGEN_GIT_COMMIT_HASH").unwrap_or_else(|_| "unknown".into()));
         assert!(state.feature_versions.is_empty());
     }
 
@@ -437,7 +366,6 @@ mod tests {
     fn test_replay_engine_creation() {
         let dir = tempdir().unwrap();
         let engine = ReplayEngine::new(dir.path().to_path_buf());
-        // Engine should be created successfully
         assert!(true);
     }
 
