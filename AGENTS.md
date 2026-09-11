@@ -123,6 +123,8 @@ QuantRadar/
 └── target/                # Build artifacts (gitignored)
 ```
 
+> **Full detailed file tree (with all files):** See [`FILETREE.md`](FILETREE.md) — auto-generated 2026-09-11 20:05:23 UTC with complete file listing including every `.rs`, `.toml`, `.md`, `.py`, `.json` file in the project.
+
 ## Control Plane Integration
 
 **Control-plane:** authority `MASTERLIST.md`, roadmap `PLAN.md`, operating contract `AGENT.md`, live state `TODO.md`, runtime `.agents/` (`registry.json` + scripts). Index: `CONTROL_PLANE.md`.
