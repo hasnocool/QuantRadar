@@ -1,19 +1,35 @@
-# crates/execution/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#execution
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar risk controls and paper-trading execution simulator. No live broker implementation here.`
 
-## Flow
+- `use chrono::{DateTime, Utc};`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_core::{Direction, OrderBookSnapshot, Signal, OrderSide};`
+
+- `use serde::{Deserialize, Serialize};`
+
+- `use uuid::Uuid;`
+
+## Dependencies
+
+- `chrono.workspace`
+
+- `serde.workspace`
+
+- `uuid.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `execution` crate in the QuantRadar workspace

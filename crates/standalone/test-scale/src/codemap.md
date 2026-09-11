@@ -1,19 +1,35 @@
-# crates/test-scale/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#test-scale
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Deserialize, Serialize};`
 
-## Flow
+- `use anyhow::Result;`
 
-<!-- How does data/control flow through this module? -->
+- `pub struct TestScale {`
+
+- `pub enabled: bool,`
+
+- `pub config: String,`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `test-scale` crate in the QuantRadar workspace

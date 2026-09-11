@@ -1,19 +1,35 @@
-# crates/strategy_dsl/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#strategy_dsl
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `impl StrategyExpr { pub fn parse(s: &str) -> Self { Self{expr:s.into()} } pub fn evaluate(&self) -> bool { !self.expr.is_empty() } }`
 
-<!-- How does data/control flow through this module? -->
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+- `let pkg = env!("CARGO_PKG_NAME");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `strategy_dsl` crate in the QuantRadar workspace

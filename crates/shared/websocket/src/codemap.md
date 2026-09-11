@@ -1,19 +1,47 @@
-# crates/websocket/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#websocket
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar production-grade WebSocket feed handler with bounded concurrency,`
 
-## Flow
+- `// adaptive rate limiting, reconnect/backoff, heartbeat monitoring, subscription`
 
-<!-- How does data/control flow through this module? -->
+- `// management, sequence validation, stale-feed detection, auto-resubscription,`
+
+- `// per-symbol buffers, backpressure, and feed health scores.`
+
+- `use quantaradar_core::SourceKind;`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `quantaradar-rate-limiter`
+
+- `anyhow`
+
+- `chrono`
+
+- `serde`
+
+- `serde_json`
+
+- `tokio`
+
+- `tracing`
+
+- `uuid`
+
+- `rand`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `websocket` crate in the QuantRadar workspace

@@ -1,19 +1,35 @@
-# crates/dashboard/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#dashboard
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Dashboard and visualization.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `use std::collections::HashMap;`
 
-<!-- How does data/control flow through this module? -->
+- `impl DashMetric { pub fn new(label: &str, value: f64) -> Self { Self { label: label.into(), value } } }`
+
+- `// Minimal per-feed card (primitives only — no dep on websocket crate).`
+
+- `impl DashboardFeeds {`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `dashboard` crate in the QuantRadar workspace

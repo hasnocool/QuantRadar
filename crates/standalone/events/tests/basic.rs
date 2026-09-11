@@ -1,7 +1,6 @@
 use quantaradar_events::*;
 #[test]
 fn market_event_classify() {
-    let mut ev = MarketEvent::new("BTC".into(), 100.0);
-    ev.classify("anomaly");
-    assert_eq!(ev.kind, "anomaly");
+    let ev = Event::new("BTC", "anomaly");
+    assert_eq!(ev.event_type, "anomaly");
 }

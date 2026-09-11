@@ -1,19 +1,37 @@
-# crates/data-model/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#data-model
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Data ingestion and validation pipeline.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar immutable market data model with full observation fields.`
 
-## Flow
+- `// Fields: timestamp, exchange, symbol, base, quote, OHLCV, trade_count, bid, ask, bid_depth, ask_depth, source, ingested_at, quality_flags`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_core::{Observation, OHLCV, QualityFlag, Regime, SourceKind};`
+
+- `use chrono::{DateTime, Utc};`
+
+- `use serde::{Deserialize, Serialize};`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `chrono`
+
+- `serde`
+
+- `uuid`
+
+- `anyhow`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `data-model` crate in the QuantRadar workspace

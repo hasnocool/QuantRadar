@@ -1,19 +1,45 @@
-# crates/ingestion/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#ingestion
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Data ingestion and validation pipeline.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar ingestion pipeline: collector, normalizer, quality validator.`
 
-## Flow
+- `use quantaradar_core::{Bar, Observation, QualityCheckResult, QualityFlag, SourceKind, validate_bar, validate_observation, is_valid_price, is_valid_volume};`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_data_model::{MarketObservation, TradeObservation, OrderBookObservation, MarketDataBatch};`
+
+- `use quantaradar_storage::{MarketDataWriter, StorageConfig, ManifestWriter, DatasetManifest, DatasetType};`
+
+- `use anyhow::Result;`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `quantaradar-data-model`
+
+- `quantaradar-storage`
+
+- `anyhow`
+
+- `chrono`
+
+- `serde`
+
+- `tokio`
+
+- `tracing`
+
+- `uuid`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `ingestion` crate in the QuantRadar workspace

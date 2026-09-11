@@ -1,3 +1,4 @@
+SEE ALSO: docs/control-plane/MASTERLIST.md §3 (canonical authority).
 # QuantRadar
 
 QuantRadar is a market-intelligence and quantitative research platform designed to turn broad market data into explainable, validated trading opportunities.

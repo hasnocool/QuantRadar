@@ -1,19 +1,47 @@
-# crates/exchange-kraken/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#exchange-kraken
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Ingestion adapter for exchange-kraken.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar Kraken REST and WebSocket market-data clients.`
 
-## Flow
+- `use anyhow::{Context, Result};`
 
-<!-- How does data/control flow through this module? -->
+- `use chrono::{DateTime, Utc};`
+
+- `use quantaradar_core::{Bar, MarketId};`
+
+- `use reqwest::Client;`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `chrono.workspace`
+
+- `futures.workspace`
+
+- `reqwest.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `tokio.workspace`
+
+- `tokio-tungstenite`
+
+- `quantaradar-core`
+
+- `urlencoding`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `exchange-kraken` crate in the QuantRadar workspace

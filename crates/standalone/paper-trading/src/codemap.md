@@ -1,19 +1,35 @@
-# crates/paper-trading/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#paper-trading
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `pub struct PaperAccount { pub cash: f64, pub peak_equity: f64, pub equity: f64, pub unrealized_pnl: f64, pub realized_pnl: f64, pub fills: Vec<String>, pub positions: Vec<String>, pub stop_orders: Vec<String>, pub take_profit_orders: Vec<String>, pub pending: Vec<String> }`
 
-## Flow
+- `impl PaperAccount {`
 
-<!-- How does data/control flow through this module? -->
+- `}`
+
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `paper-trading` crate in the QuantRadar workspace

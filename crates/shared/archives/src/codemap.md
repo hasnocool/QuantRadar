@@ -1,19 +1,45 @@
-# crates/archives/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#archives
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar archives: tick/trades/book storage with gap detection, reconnect/replay.`
 
-## Flow
+- `use quantaradar_core::{QualityFlag, SourceKind};`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_data_model::{MarketObservation, TradeObservation, OrderBookObservation, MarketDataBatch};`
+
+- `use quantaradar_storage::{MarketDataWriter, StorageConfig};`
+
+- `use anyhow::{Context, Result};`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `quantaradar-data-model`
+
+- `quantaradar-storage`
+
+- `anyhow`
+
+- `chrono`
+
+- `serde`
+
+- `tokio`
+
+- `tracing`
+
+- `uuid`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `archives` crate in the QuantRadar workspace

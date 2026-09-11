@@ -24,7 +24,7 @@ enum Commands {
     AnalyzePca,
     GenerateReport {
         #[arg(short, long)]
-        crate: Option<String>,
+        crate_name: Option<String>,
         #[arg(short = 'a', long)]
         all: bool,
         #[arg(short, long)]
@@ -36,10 +36,12 @@ fn list_crates() -> Vec<(String, String)> {
     let mut out = vec![];
     for base in ["crates/shared", "crates/standalone"] {
         if Path::new(base).exists() {
-            for d in fs::read_dir(base).unwrap_or_default() {
-                if let Ok(e) = d {
-                    let name = e.file_name().to_string_lossy().to_string();
-                    out.push((name.clone(), format!("{}/{}", base, name)));
+            if let Ok(entries) = fs::read_dir(base) {
+                for d in entries {
+                    if let Ok(e) = d {
+                        let name = e.file_name().to_string_lossy().to_string();
+                        out.push((name.clone(), format!("{}/{}", base, name)));
+                    }
                 }
             }
         }
@@ -151,7 +153,7 @@ async fn main() -> anyhow::Result<()> {
         Commands::AnalyzeRegime { symbol } => println!("Regime — regime-detector {}", symbol),
         Commands::AnalyzeRank => println!("Rank — cross-section"),
         Commands::AnalyzePca => println!("PCA — components"),
-        Commands::GenerateReport { crate: crate_name, all, tests } => {
+        Commands::GenerateReport { crate_name, all, tests } => {
             generate_report(crate_name.as_deref(), all, tests);
         }
     }

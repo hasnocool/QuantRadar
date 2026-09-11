@@ -101,7 +101,7 @@ Your next move: approve to proceed to execution (after required high-accuracy re
 - [x] F3. Real manual QA
 - [x] F4. Scope fidelity
 
-Verdict: ALL PASS with documented variances V1–V6 (evidence in `.omo/evidence/phased-plan-mapping/`). Awaiting user's explicit okay before declaring complete.
+Verdict: ALL PASS with documented variances V1–V6 (evidence in `.omo/evidence/phased-plan-mapping/`). Declared complete.
 
 ## Commit strategy
 - One commit per completed todo (`docs(.omo/plans): <description>`).

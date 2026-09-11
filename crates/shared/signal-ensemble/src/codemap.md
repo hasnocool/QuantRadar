@@ -1,19 +1,33 @@
-# crates/signal-ensemble/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#signal-ensemble
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Signal generation and ensemble modeling.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar signal ensemble and meta-model for signal aggregation.`
 
-## Flow
+- `use quantaradar_core::{Direction, Regime, SignalFamily};`
 
-<!-- How does data/control flow through this module? -->
+- `use serde::{Deserialize, Serialize};`
+
+- `pub struct Signal {`
+
+- `pub symbol: String,`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `signal-ensemble` crate in the QuantRadar workspace

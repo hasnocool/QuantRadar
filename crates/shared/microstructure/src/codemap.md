@@ -1,19 +1,29 @@
-# crates/microstructure/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#microstructure
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Market microstructure analysis.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar microstructure analytics: order-book/trade-flow models and executable-liquidity scoring.`
 
-## Flow
+- `use quantaradar_core::{OrderBookSnapshot, OrderSide, TradeTick};`
 
-<!-- How does data/control flow through this module? -->
+- `pub struct MicrostructureFeatures {`
+
+- `pub spread_bps: f64,`
+
+- `pub bid_depth_usd: f64,`
+
+## Dependencies
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `microstructure` crate in the QuantRadar workspace

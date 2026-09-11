@@ -1,19 +1,35 @@
-# crates/expected_return/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#expected_return
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Expected return computation.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `impl ExpectedReturn { pub fn compute(price: f64) -> Self { Self{rate: 0.05, confidence: 0.8} } }`
 
-<!-- How does data/control flow through this module? -->
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+- `let pkg = env!("CARGO_PKG_NAME");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `expected_return` crate in the QuantRadar workspace

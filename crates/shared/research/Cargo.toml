@@ -10,3 +10,5 @@ chrono.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 quantaradar-core = { path = "../core" }
+rand = "0.8"
+thiserror = "1.0"

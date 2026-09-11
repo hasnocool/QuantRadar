@@ -1,19 +1,35 @@
-# crates/model_registry/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#model_registry
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Model management and registry.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `impl ModelEntry { pub fn register(name: &str) -> Self { Self{name:name.into(), version:1} } }`
 
-<!-- How does data/control flow through this module? -->
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+- `let pkg = env!("CARGO_PKG_NAME");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `model_registry` crate in the QuantRadar workspace

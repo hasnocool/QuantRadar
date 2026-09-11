@@ -1,1 +1,1 @@
-use quantaradar_cli::*; #[test] fn cli_exists() { assert!(true); }
+use quantaradar::*; #[test] fn cli_exists() { assert!(true); }

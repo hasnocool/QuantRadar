@@ -1,3 +1,4 @@
+SEE ALSO: docs/control-plane/MASTERLIST.md §3 (canonical authority).
 # QuantRadar PLAN.md — Organized Index (35 sections, grouped by theme)
 
 | # | Theme | Section | Status |

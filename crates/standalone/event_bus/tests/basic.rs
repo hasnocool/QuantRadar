@@ -1,1 +1,1 @@
-use quantaradar_event_bus::*; #[test] fn event_bus_default() { assert!(EventBus::new().subscribers.len() >= 0); }
+use quantaradar_event_bus::*; #[test] fn event_bus_default() { assert_eq!(EventBus::new().count(), 0); }

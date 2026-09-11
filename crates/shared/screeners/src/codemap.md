@@ -1,19 +1,33 @@
-# crates/screeners/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#screeners
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Screening and filtering pipeline.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// Explainable multi-family market screeners.`
 
-## Flow
+- `use chrono::Utc;`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_core::{Direction, FeatureRow, Regime, Signal, SignalFamily};`
+
+- `use std::collections::BTreeMap;`
+
+- `use uuid::Uuid;`
+
+## Dependencies
+
+- `chrono.workspace`
+
+- `uuid.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `screeners` crate in the QuantRadar workspace

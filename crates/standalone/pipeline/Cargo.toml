@@ -6,7 +6,8 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-anyhow.workspace = true
 serde.workspace = true
-serde_json.workspace = true
-chrono.workspace = true
+quantaradar-core = { path = "../../shared/core" }
+quantaradar-screeners = { path = "../../shared/screeners" }
+quantaradar-signal-ensemble = { path = "../../shared/signal-ensemble" }
+quantaradar-execution = { path = "../../shared/execution" }

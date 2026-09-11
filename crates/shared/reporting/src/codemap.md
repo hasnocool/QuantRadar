@@ -1,19 +1,41 @@
-# crates/reporting/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#reporting
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Report generation and output formatting.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar machine-readable report writer.`
 
-## Flow
+- `use anyhow::{Context, Result};`
 
-<!-- How does data/control flow through this module? -->
+- `use chrono::{DateTime, Utc};`
+
+- `use serde::Serialize;`
+
+- `use std::path::Path;`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `serde_yaml`
+
+- `chrono.workspace`
+
+- `uuid`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `reporting` crate in the QuantRadar workspace

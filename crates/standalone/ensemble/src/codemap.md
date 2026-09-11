@@ -1,19 +1,35 @@
-# crates/ensemble/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#ensemble
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Signal generation and ensemble modeling.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `pub struct Ensemble { pub weights:Vec<f64>, pub scores:Vec<f64> }`
 
-<!-- How does data/control flow through this module? -->
+- `impl Ensemble { pub fn new()->Self{Self{weights:vec![0.5,0.5],scores:vec![]}} pub fn add_weight(&mut self,w:f64){self.weights.push(w);} pub fn score(&self)->f64{if self.weights.is_empty(){0.0}else{self.weights.iter().sum::<f64>()/self.weights.iter().sum::<f64>().max(1.0)}} pub fn add_score(&mut self,s:f64){self.scores.push(s);} pub fn aggregate(&self,scores:&[f64])->f64{if scores.is_empty(){0.0}else{scores.iter().sum::<f64>()/scores.len() as f64}} }`
+
+- `impl EnsembleVote { pub fn vote() -> f64 { 1.0 } }`
+
+- `mod verify_output {`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `ensemble` crate in the QuantRadar workspace

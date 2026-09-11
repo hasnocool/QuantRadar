@@ -1,19 +1,47 @@
-# crates/replay/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#replay
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use chrono::Utc;`
 
-## Flow
+- `use quantaradar_core::{Direction, OrderSide, QualityFlag, SourceKind, SignalFamily};`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_data_model::{DatasetManifest, MarketObservation};`
+
+- `use anyhow::{Context, Result};`
+
+- `use sha2::{Sha256, Digest};`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+- `sha2.workspace`
+
+- `quantaradar-core`
+
+- `quantaradar-data-model`
+
+- `parquet`
+
+- `arrow`
+
+- `uuid`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `replay` crate in the QuantRadar workspace

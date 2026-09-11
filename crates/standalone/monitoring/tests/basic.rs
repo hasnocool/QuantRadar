@@ -1,1 +1,1 @@
-use quantaradar_monitoring::*; #[test] fn monitoring_default() { let m = Monitoring::default(); assert!(!m.enabled || true); }
+use quantaradar_monitoring::*; #[test] fn monitoring_default() { assert!(MonitorHealth::check().healthy); }

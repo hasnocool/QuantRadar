@@ -1,19 +1,37 @@
-# crates/backtest_engine/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#backtest_engine
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Backtest execution and performance analysis.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use quantaradar_core::{Direction, OrderSide, Bar};`
 
-## Flow
+- `use chrono::{DateTime, Utc, TimeZone};`
 
-<!-- How does data/control flow through this module? -->
+- `use serde::{Deserialize, Serialize};`
+
+- `use std::collections::hash_map::DefaultHasher;`
+
+- `use std::hash::{Hash, Hasher};`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `backtest_engine` crate in the QuantRadar workspace

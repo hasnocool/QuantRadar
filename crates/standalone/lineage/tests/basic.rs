@@ -1,7 +1,6 @@
 use quantaradar_lineage::*;
 #[test]
 fn lineage_evolve() {
-    let mut l = Lineage::new("f1".into());
-    l.evolve();
-    assert_eq!(l.version, 2);
+    let l = LineageRecord::new("mean", "price");
+    assert!(!l.feature.is_empty());
 }

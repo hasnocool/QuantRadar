@@ -1,19 +1,35 @@
-# crates/derivatives/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#derivatives
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `impl DerivativeContract { pub fn new(s: &str, e: u64) -> Self { Self{symbol:s.into(), expiry:e} } }`
 
-<!-- How does data/control flow through this module? -->
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+- `let pkg = env!("CARGO_PKG_NAME");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `derivatives` crate in the QuantRadar workspace

@@ -1,19 +1,35 @@
-# crates/backtest/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#backtest
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Backtest execution and performance analysis.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// Cost-aware deterministic event-driven backtester with realistic execution.`
 
-## Flow
+- `use chrono::{DateTime,Utc};`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_core::Bar;`
+
+- `use quantaradar_microstructure::MicrostructureFeatures;`
+
+- `use serde::{Deserialize,Serialize};`
+
+## Dependencies
+
+- `chrono.workspace`
+
+- `serde.workspace`
+
+- `quantaradar-core`
+
+- `quantaradar-microstructure`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `backtest` crate in the QuantRadar workspace

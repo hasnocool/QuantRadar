@@ -1,19 +1,35 @@
-# crates/scheduler/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#scheduler
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `impl Scheduler { pub fn new() -> Self { Self { enabled: true, interval_min: 60 } } pub fn tick(&self) -> String { "scheduled".into() } }`
 
-<!-- How does data/control flow through this module? -->
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+- `let pkg = env!("CARGO_PKG_NAME");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `scheduler` crate in the QuantRadar workspace

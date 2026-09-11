@@ -1,31 +1,31 @@
 #!/bin/bash
-# Agent: recursive-caller — a self-calling, deep-diving agent that explores by calling itself into deeper states.
-# ponytail: recursive agent with registry integration + complex termination guard
+# Contract: AGENT.md §§8-9; MASTERLIST §§9-10/P5.
+# Recursive delegation: fan out one level, register it, verify current level,
+# then descend. Termination: depth<=0 base case, depth>5 hard-stop (runaway
+# guard §10), STOP file. Never recurse without the registry append below
+# (the verification/registration step). Tolerates new registry schema.
+# Usage: ./recursive-agent.sh [depth] [name]
 DEPTH="${1:-3}"
 NAME="${2:-recursive-agent}"
 REGISTRY=".agents/registry.json"
 STOP_FILE=".agents/STOP"
-# Complex termination guard: depth + external stop file + max iterations
 if [ -f "$STOP_FILE" ]; then echo "guard: STOP file found, terminating $NAME"; rm -f "$STOP_FILE"; exit 0; fi
-if [ "$DEPTH" -le 0 ]; then echo "base_case: depth=0 reached for $NAME"; python3 -c "
-import json,sys
-try: r=json.load(open('$REGISTRY'))
-except: r={'agents':[]}
-r['agents'].append({'agent':'$NAME','status':'terminated','reason':'depth_zero'})
-json.dump(r,open('$REGISTRY','w'))
-"; exit 0; fi
-# Registry integration
+case "$DEPTH" in ''|*[!0-9]*) echo "recursive-agent: DEPTH must be a non-negative int" >&2; exit 1;; esac
+if [ "$DEPTH" -gt 5 ]; then echo "guard: depth $DEPTH > 5 hard-stop ($NAME)" >&2; exit 1; fi
+if [ "$DEPTH" -le 0 ]; then echo "base_case: depth=0 reached for $NAME"; exit 0; fi
 mkdir -p .agents
-if [ ! -f "$REGISTRY" ]; then echo '{"agents":[]}' > "$REGISTRY"; fi
-TMP=$(mktemp)
-python3 -c "
-import json,sys
-r=json.load(open('$REGISTRY'))
-r['agents'].append({'agent':'$NAME','depth':$DEPTH,'ts':__import__('time').time()})
-json.dump(r,open('$TMP','w'))
-" 2>/dev/null || echo '{"agent":"'$NAME'","depth":'$DEPTH'"}' >> "$REGISTRY"
-cp "$TMP" "$REGISTRY" 2>/dev/null || true
-rm -f "$TMP"
-echo "recurse: $NAME depth=$DEPTH -> calling self (registered)"
-NEW_DEPTH=$((DEPTH - 1))
-exec bash "$0" "$NEW_DEPTH" "$NAME"
+[ -f "$REGISTRY" ] || echo '{"agents":[]}' > "$REGISTRY"
+python3 - "$REGISTRY" "$NAME" "$DEPTH" <<'EOF' 2>/dev/null || echo "warn: registry append skipped ($NAME depth $DEPTH)" >&2
+import json, sys, time
+path, name, depth = sys.argv[1], sys.argv[2], int(sys.argv[3])
+try:
+    r = json.load(open(path))
+except Exception:
+    print("corrupt registry, skipping update", file=sys.stderr); sys.exit(0)
+r.setdefault("agents", []).append({"agent": name, "role": "runtime",
+    "workspace": ".agents/", "depth": depth, "score": 0.0, "weight": 1,
+    "ts": time.time()})
+json.dump(r, open(path, "w"))
+EOF
+echo "recurse: $NAME depth=$DEPTH -> descending (registered)"
+exec bash "$0" "$((DEPTH - 1))" "$NAME"

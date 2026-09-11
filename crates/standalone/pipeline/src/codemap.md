@@ -1,19 +1,35 @@
-# crates/pipeline/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#pipeline
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `pub struct Pipeline { stages: Vec<String>, active: bool, results: Vec<String> }`
 
-## Flow
+- `impl Pipeline {`
 
-<!-- How does data/control flow through this module? -->
+- `}`
+
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `pipeline` crate in the QuantRadar workspace

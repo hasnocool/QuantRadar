@@ -22,3 +22,6 @@ arrow = { version = "53", features = ["csv", "json", "ipc"] }
 
 # UUID for event IDs
 uuid = { workspace = true, features = ["v4", "serde"] }
+
+[dev-dependencies]
+tempfile = "3"

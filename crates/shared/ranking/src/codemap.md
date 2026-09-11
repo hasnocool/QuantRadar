@@ -1,19 +1,37 @@
-# crates/ranking/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#ranking
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Cross-sectional ranking and scoring.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `pub struct RankScore { pub symbol: String, pub score: f64 }`
 
-<!-- How does data/control flow through this module? -->
+- `impl RankScore { pub fn rank_all(items: &[(String, f64)]) -> Vec<RankScore> { items.iter().map(|(s,v)| RankScore{symbol:s.clone(),score:*v}).collect() } }`
+
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `ranking` crate in the QuantRadar workspace

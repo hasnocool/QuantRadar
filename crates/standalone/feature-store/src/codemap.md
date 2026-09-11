@@ -1,19 +1,35 @@
-# crates/feature-store/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#feature-store
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Feature computation and engineering.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar feature store with versioned persistence, lineage tracking, and point-in-time queries.`
 
-## Flow
+- `use anyhow::Result;`
 
-<!-- How does data/control flow through this module? -->
+- `use chrono::{DateTime, Utc};`
+
+- `use serde::{Deserialize, Serialize};`
+
+- `use std::collections::{BTreeMap, HashMap};`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `feature-store` crate in the QuantRadar workspace

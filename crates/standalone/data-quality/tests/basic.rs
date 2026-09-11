@@ -1,1 +1,1 @@
-use quantaradar_core::*; #[test] fn quality_default() { assert!(true); }
+use data_quality::*; #[test] fn quality_default() { assert!(true); }

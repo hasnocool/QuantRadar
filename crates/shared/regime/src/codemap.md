@@ -1,19 +1,31 @@
-# crates/regime/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#regime
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Regime detection and market regime analysis.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// Lightweight deterministic market-regime classifier.`
 
-## Flow
+- `use quantaradar_core::FeatureRow;`
 
-<!-- How does data/control flow through this module? -->
+- `pub use quantaradar_core::Regime;`
+
+- `use serde::{Deserialize, Serialize};`
+
+- `pub struct RegimeThresholds { pub trend: f64, pub high_vol: f64, pub low_vol: f64 }`
+
+## Dependencies
+
+- `serde.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `regime` crate in the QuantRadar workspace

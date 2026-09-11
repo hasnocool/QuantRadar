@@ -1,19 +1,31 @@
-# crates/features/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#features
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Feature computation and engineering.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// Deterministic technical indicators. No network or global mutable state.`
 
-## Flow
+- `use quantaradar_core::{safe_return,Bar,FeatureRow};`
 
-<!-- How does data/control flow through this module? -->
+- `pub struct Lookback { pub required: usize }`
+
+- `impl Lookback { pub const fn new(required: usize) -> Self { Self { required } } pub fn ok_at(&self, idx: usize) -> bool { idx >= self.required } }`
+
+- `let closes:Vec<f64>=bars.iter().map(|b|b.close).collect();`
+
+## Dependencies
+
+- `chrono.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `features` crate in the QuantRadar workspace

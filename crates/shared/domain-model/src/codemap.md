@@ -1,19 +1,37 @@
-# crates/domain-model/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#domain-model
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Model management and registry.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use quantaradar_core::{Direction, OrderSide};`
 
-## Flow
+- `pub struct Trade { pub symbol: String, pub size: f64, pub price: f64, pub direction: Direction, pub time: String }`
 
-<!-- How does data/control flow through this module? -->
+- `pub struct Position { pub symbol: String, pub qty: f64, pub avg_price: f64, pub unrealized_pnl: f64 }`
+
+- `impl Trade { pub fn new(s: String, qty: f64, p: f64, dir: Direction) -> Self { Self { symbol: s, size: qty, price: p, direction: dir, time: "now".into() } } pub fn direction_str(&self) -> String { self.direction.to_string() } }`
+
+- `mod verify_output {`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `domain-model` crate in the QuantRadar workspace

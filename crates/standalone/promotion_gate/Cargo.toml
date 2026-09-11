@@ -1,0 +1,14 @@
+[package]
+name = "quantaradar-promotion_gate"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+quantaradar-core = { path = "../../shared/core" }
+quantaradar-paper-trading = { path = "../paper-trading" }
+quantaradar-portfolio_risk = { path = "../portfolio_risk" }

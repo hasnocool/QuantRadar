@@ -1,19 +1,41 @@
-# crates/order-book/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#order-book
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Order book and execution logic.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar order book: full L2 state, delta updates, and reconstruction.`
 
-## Flow
+- `use quantaradar_core::{OrderSide, QualityFlag, SourceKind};`
 
-<!-- How does data/control flow through this module? -->
+- `use anyhow::Result;`
+
+- `use chrono::{DateTime, Utc};`
+
+- `use serde::{Deserialize, Serialize};`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `anyhow`
+
+- `chrono`
+
+- `serde`
+
+- `tokio`
+
+- `tracing`
+
+- `uuid`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `order-book` crate in the QuantRadar workspace

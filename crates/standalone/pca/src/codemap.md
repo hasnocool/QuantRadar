@@ -1,19 +1,35 @@
-# crates/pca/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#pca
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Dimensionality reduction and ranking.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `impl PcaResult { pub fn compute(values: &[f64]) -> Self { let mean = values.iter().sum::<f64>()/values.len() as f64; let var = values.iter().map(|v|(v-mean).powi(2)).sum::<f64>()/values.len() as f64; Self{variance:var} } }`
 
-<!-- How does data/control flow through this module? -->
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+- `let pkg = env!("CARGO_PKG_NAME");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `pca` crate in the QuantRadar workspace

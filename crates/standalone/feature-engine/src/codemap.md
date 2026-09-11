@@ -1,19 +1,35 @@
-# crates/feature-engine/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#feature-engine
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Feature computation and engineering.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Deserialize, Serialize};`
 
-## Flow
+- `use anyhow::Result;`
 
-<!-- How does data/control flow through this module? -->
+- `pub struct FeatureSet {`
+
+- `pub mean: f64,`
+
+- `pub std_dev: f64,`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `feature-engine` crate in the QuantRadar workspace

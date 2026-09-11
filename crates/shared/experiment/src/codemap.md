@@ -1,19 +1,39 @@
-# crates/experiment/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#experiment
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Experiment framework and reproducibility.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar experiment registry: lineage, monitoring, autonomous promotion/retirement.`
 
-## Flow
+- `use anyhow::{Context, Result};`
 
-<!-- How does data/control flow through this module? -->
+- `use chrono::{DateTime, Utc};`
+
+- `use quantaradar_core::Regime;`
+
+- `use serde::{Deserialize, Serialize};`
+
+## Dependencies
+
+- `chrono.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `uuid.workspace`
+
+- `anyhow.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `experiment` crate in the QuantRadar workspace

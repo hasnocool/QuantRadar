@@ -8,3 +8,7 @@ license.workspace = true
 [dependencies]
 serde.workspace = true
 quantaradar-core = { path = "../core" }
+
+[dev-dependencies]
+quantaradar-features = { path = "../features" }
+chrono = { workspace = true, features = ["serde"] }

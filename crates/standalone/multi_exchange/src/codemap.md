@@ -1,19 +1,35 @@
-# crates/multi_exchange/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#multi_exchange
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Ingestion adapter for multi_exchange.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Serialize, Deserialize};`
 
-## Flow
+- `impl ExchangeRef { pub fn list() -> Vec<Self> { vec![Self{name:"kraken".into()}, Self{name:"binance".into()}] } }`
 
-<!-- How does data/control flow through this module? -->
+- `mod verify_output {`
+
+- `let manifest = env!("CARGO_MANIFEST_DIR");`
+
+- `let pkg = env!("CARGO_PKG_NAME");`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `multi_exchange` crate in the QuantRadar workspace

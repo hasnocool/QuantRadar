@@ -1,19 +1,37 @@
-# crates/event_bus/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#event_bus
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Event handling and market-data distribution.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use quantaradar_core::EventKind;`
 
-## Flow
+- `use std::collections::HashMap;`
 
-<!-- How does data/control flow through this module? -->
+- `pub struct EventBus {`
+
+- `subscribers: HashMap<String, Vec<String>>,`
+
+- `events: Vec<EventKind>,`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+- `quantaradar-core`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `event_bus` crate in the QuantRadar workspace

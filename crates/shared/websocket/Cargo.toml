@@ -16,6 +16,8 @@ tokio = { workspace = true, features = ["full", "sync"] }
 tracing = { workspace = true }
 uuid = { workspace = true, features = ["v4", "serde"] }
 rand = "0.8"
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+futures-util = { version = "0.3", features = ["sink", "std"] }
 
 [dev-dependencies]
 tempfile = "3"

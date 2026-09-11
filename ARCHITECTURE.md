@@ -1,3 +1,4 @@
+SEE ALSO: docs/control-plane/MASTERLIST.md §3 (canonical authority).
 # QuantRadar Architecture
 
 ## Data flow

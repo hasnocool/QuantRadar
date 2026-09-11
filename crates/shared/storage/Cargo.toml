@@ -8,10 +8,11 @@ quantaradar-core = { path = "../core" }
 quantaradar-data-model = { path = "../data-model" }
 chrono = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }
+serde_json = "1.0"
 anyhow = { workspace = true }
 uuid = { workspace = true, features = ["v4", "serde"] }
 arrow = { workspace = true }
-parquet = { workspace = true }
+parquet = { workspace = true, features = ["arrow"] }
 
 [dev-dependencies]
 tempfile = "3"

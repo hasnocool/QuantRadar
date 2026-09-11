@@ -1,3 +1,32 @@
+# Agents
+
+SEE ALSO: docs/control-plane/MASTERLIST.md §3
+
+> **Control-plane:** authority `MASTERLIST.md`, roadmap
+> `PLAN.md`, operating contract `AGENT.md`, live state `TODO.md`,
+> runtime `.agents/` (`registry.json` + scripts). Index: `CONTROL_PLANE.md`.
+> This file stays the QuantRadar project contract; it points to the
+> control-plane rather than duplicating it.
+
+## Task Continuation & Retry
+
+- Continue each agent task and each subagent task.
+- If a task cannot proceed, close it as inactive and retry.
+- Verify retry/close state via `.agents/registry.json` + `TODO.md`.
+
+## Repository Map
+
+A full codemap is available at `codemap.md` in the project root.
+
+Before working on any task, read `codemap.md` to understand:
+- Project architecture and entry points
+- Directory responsibilities and design patterns
+- Data flow and integration points between modules
+
+For deep work on a specific folder, also read that folder's `codemap.md`.
+
+----------------------------------------------------------------------------
+
 ---
 description: QuantRadar project agent with RTK-first conventions
 mode: subagent

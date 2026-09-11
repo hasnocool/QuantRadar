@@ -1,19 +1,35 @@
-# crates/regime-detector/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#regime-detector
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Regime detection and market regime analysis.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use serde::{Deserialize, Serialize};`
 
-## Flow
+- `pub enum Regime { Bull, Bear, Neutral, Unknown }`
 
-<!-- How does data/control flow through this module? -->
+- `pub struct RegimeDetector {`
+
+- `pub enabled: bool,`
+
+- `pub config: String,`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `regime-detector` crate in the QuantRadar workspace

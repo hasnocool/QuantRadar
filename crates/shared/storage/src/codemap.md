@@ -1,19 +1,45 @@
-# crates/storage/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#storage
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Data storage and persistence.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar Parquet/Arrow storage layer for market data persistence.`
 
-## Flow
+- `use quantaradar_core::{QualityFlag, SourceKind};`
 
-<!-- How does data/control flow through this module? -->
+- `use quantaradar_data_model::{MarketObservation, TradeObservation, OrderBookObservation, MarketDataBatch};`
+
+- `use anyhow::{anyhow, Context, Result};`
+
+- `use arrow::array::{Float64Array, Int32Array, StringArray, UInt64Array, ListArray, ArrayRef, BooleanArray};`
+
+## Dependencies
+
+- `quantaradar-core`
+
+- `quantaradar-data-model`
+
+- `chrono`
+
+- `serde`
+
+- `serde_json`
+
+- `anyhow`
+
+- `uuid`
+
+- `arrow`
+
+- `parquet`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `storage` crate in the QuantRadar workspace

@@ -1,1 +1,1 @@
-use quantaradar_types::*; #[test] fn types_default() { assert!(TypesStub == TypesStub); }
+use types::*; #[test] fn types_default() { assert!(TypesStub == TypesStub); }

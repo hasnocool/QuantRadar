@@ -1,19 +1,21 @@
-# configs/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#configs
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Module functionality to be documented.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `src/lib.rs`: not found
 
-## Flow
+## Dependencies
 
-<!-- How does data/control flow through this module? -->
+_No dependencies parsed_
+
+## Tests
+
+_No test configuration found_
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `configs` crate in the QuantRadar workspace

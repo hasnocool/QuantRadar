@@ -1,19 +1,37 @@
-# crates/core/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#core
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Core system functionality.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar core domain models and deterministic utilities.`
 
-## Flow
+- `use chrono::{DateTime, Utc};`
 
-<!-- How does data/control flow through this module? -->
+- `use serde::{Deserialize, Serialize};`
+
+- `use std::collections::BTreeMap;`
+
+- `use uuid::Uuid;`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `chrono.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `uuid.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `core` crate in the QuantRadar workspace

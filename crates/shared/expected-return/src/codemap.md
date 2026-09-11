@@ -1,19 +1,35 @@
-# crates/expected-return/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#expected-return
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Expected return computation.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `// QuantRadar expected return model.`
 
-## Flow
+- `use serde::{Deserialize, Serialize};`
 
-<!-- How does data/control flow through this module? -->
+- `use std::collections::HashMap;`
+
+- `pub struct ExpectedReturn {`
+
+- `pub symbol: String,`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `quantaradar-feature-store`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `expected-return` crate in the QuantRadar workspace

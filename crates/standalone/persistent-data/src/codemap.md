@@ -1,19 +1,35 @@
-# crates/persistent-data/src/
-
-<!-- Fixer: Fill in this section with architectural understanding -->
+#persistent-data
 
 ## Responsibility
 
-<!-- What is this folder's job in the system? -->
+Data ingestion and validation pipeline.
 
-## Design
+## Source Map
 
-<!-- Key patterns, abstractions, architectural decisions -->
+- `use anyhow::{Context, Result};`
 
-## Flow
+- `use chrono::{DateTime, Utc};`
 
-<!-- How does data/control flow through this module? -->
+- `use serde::{Deserialize, Serialize};`
+
+- `use std::collections::HashMap;`
+
+- `use std::path::Path;`
+
+## Dependencies
+
+- `anyhow.workspace`
+
+- `serde.workspace`
+
+- `serde_json.workspace`
+
+- `chrono.workspace`
+
+## Tests
+
+- `cargo test -p <name>`
 
 ## Integration
 
-<!-- How does it connect to other parts of the system? -->
+- Part of the `persistent-data` crate in the QuantRadar workspace

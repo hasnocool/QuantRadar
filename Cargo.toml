@@ -28,6 +28,7 @@ members = [
   "crates/standalone/pipeline",
   "crates/standalone/portfolio",
   "crates/standalone/portfolio_risk",
+  "crates/standalone/promotion_gate",
   "crates/standalone/rate-limiter",
   "crates/standalone/regime-detector",
   "crates/standalone/registry",
