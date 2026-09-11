@@ -16,12 +16,111 @@ QuantRadar — Rust + Python quantitative research platform.
 **Structure:**
 ```
 QuantRadar/
-├── crates/          # Rust workspace (core, data, strategy, execution)
-├── python/          # Python research/analysis scripts
-├── configs/         # Strategy configs, environment configs
-├── plans/           # Work plans (.omo/plans/)
-├── reports/         # Generated reports
-└── target/          # Build artifacts
+├── configs/              # Strategy configs, environment configs
+├── crates/               # Rust workspace (shared + standalone crates)
+│   ├── shared/           # Core shared crates (54 crates)
+│   │   ├── archives/        # Historical data archiving
+│   │   ├── backtest/        # Basic SMA backtest engine
+│   │   ├── backtest_engine/ # Multi-symbol portfolio backtest engine
+│   │   ├── cli/             # Main CLI binary (quantaradar)
+│   │   ├── core/            # Core domain types (Bar, MarketId, Signal, Regime, Direction, OrderSide)
+│   │   ├── dashboard/       # Dashboard components
+│   │   ├── data-model/      # Observation/bar data models
+│   │   ├── domain-model/    # Domain types (Direction, OrderSide, SignalFamily, Regime)
+│   │   ├── exchange-kraken/ # Kraken REST + WebSocket v2 client
+│   │   ├── execution/       # Risk controls + paper execution primitives
+│   │   ├── expected-return/ # Expected return calculations
+│   │   ├── experiment/      # Experiment tracking
+│   │   ├── features/        # Technical indicators (EMA, RSI, ATR, Bollinger, volume-z)
+│   │   ├── ingestion/       # Data ingestion pipeline
+│   │   ├── microstructure/  # Order-book, trade-flow, liquidity analytics
+│   │   ├── news_ingestion/  # News ingestion (Reddit, NewsAPI)
+│   │   ├── order-book/      # Order book data structures
+│   │   ├── ranking/         # Cross-sectional ranking model
+│   │   ├── regime/          # Regime detection (classify, RegimeThresholds)
+│   │   ├── reporting/       # Machine-readable reports
+│   │   ├── research/        # Breadth, ranking, relative-strength, PCA, events
+│   │   ├── screeners/       # Explainable screener families (trend, breakout, MR, vol-exp, vol-surge)
+│   │   ├── signal-ensemble/ # Meta-model for combining signals
+│   │   ├── storage/         # Persistent storage layer (Parquet/Arrow)
+│   │   └── websocket/       # Generic WebSocket primitives
+│   └── standalone/         # Extended crates (51 crates)
+│       ├── data-quality/       # Quality flags / validation
+│       ├── derivatives/        # Derivatives pricing/models
+│       ├── ensemble/           # Ensemble methods
+│       ├── event_bus/          # Event publishing
+│       ├── events/             # Event types
+│       ├── exchange-binance/   # Binance data adapter
+│       ├── exchange-coinbase/  # Coinbase adapter
+│       ├── expected_return/    # Expected return calculations
+│       ├── feature-engine/     # Feature computation pipeline
+│       ├── feature-store/      # Persistent feature storage
+│       ├── freqtrade_integration/ # Freqtrade interop
+│       ├── hold-period/        # Holding period analysis
+│       ├── lineage/            # Feature lineage tracking
+│       ├── live-exec/          # Isolated live-execution adapter (disabled)
+│       ├── logging/            # Logging infrastructure
+│       ├── model_registry/     # Model registry
+│       ├── monitoring/         # Monitoring/observability
+│       ├── multi_exchange/     # Multi-source coordination
+│       ├── optimization/       # Optimization layer
+│       ├── orderbook/          # Order book types
+│       ├── paper-trading/      # Paper execution primitives (full engine)
+│       ├── paper/              # Paper types
+│       ├── pca/                # PCA analysis
+│       ├── persistent-data/    # Durable storage layer
+│       ├── pipeline/           # Signal pipeline (feature→screener→ensemble→rank→gate)
+│       ├── portfolio/          # Portfolio types
+│       ├── portfolio_risk/     # Portfolio risk engine (VaR/CVaR, regime scaling)
+│       ├── promotion_gate/     # Research→Paper→Shadow→Canary→Live gates
+│       ├── rate-limiter/       # Bounded concurrency controls
+│       ├── regime-detector/    # Regime detection (bull/bear/neutral)
+│       ├── registry/           # Experiment/model registry
+│       ├── replay/             # Deterministic replay
+│       ├── report-gen/         # Per-crate markdown report generator
+│       ├── risk/               # Risk limits / VaR
+│       ├── scheduler/          # Ops scheduling
+│       ├── sentiment/          # Sentiment analysis
+│       ├── signals/            # Signal types
+│       ├── strategies/         # Strategy definitions
+│       ├── strategy_dsl/       # DSL generation
+│       ├── test-scale/         # Scale testing
+│       ├── types/              # Shared type definitions
+│       ├── universe/           # Symbol universe management
+│       ├── universe_history/   # Historical universe tracking
+│       └── validation/         # Walk-forward validation
+├── python/                # Python research/analysis scripts
+│   └── quantaradar/
+│       ├── ml/               # ML models (Isolation Forest, etc.)
+│       ├── walk_forward/     # Walk-forward evaluation (folds, metrics, aggregation)
+│       ├── robustness.py     # Robustness + champion/challenger gates
+│       └── test_robustness.py
+├── data/                  # Market data
+│   ├── raw/                # Raw OHLC JSON (e.g., BTC_USD.json, ETH_USD.json)
+│   └── news/               # Cached news data
+├── docs/                  # Documentation
+│   ├── architecture/       # Architecture docs
+│   ├── cli/                # CLI reference
+│   ├── control-plan/       # Control plane docs (MASTERLIST.md, PLAN.md, TODO.md, AGENTS.md)
+│   └── crates/             # Per-crate codemaps
+├── plans/                 # Work plans (.omo/plans/)
+├── tests/                 # Integration tests
+│   ├── fixtures/           # Test fixtures (bar generator, feature row generator)
+│   └── strategies/         # Strategy test modules
+├── .omo/                  # OhMyOpenCode plans and state
+│   ├── plans/              # Work plans
+│   ├── drafts/             # Draft plans
+│   ├── evidence/           # Verification evidence
+│   ├── notepads/           # Scratch pads
+│   ├── run-continuation/   # Continuation state
+│   └── start-work/         # Start-work config
+├── .agents/               # Agent runtime scripts and registry
+│   ├── loop-agent.sh
+│   ├── loop-cmd.sh
+│   ├── recursive-agent.sh
+│   ├── self-improving-agent.sh
+│   └── registry.json
+└── target/                # Build artifacts (gitignored)
 ```
 
 ## Control Plane Integration

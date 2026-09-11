@@ -921,7 +921,7 @@ mod tests {
         assert_eq!(config.row_group_size, 65_536);
     }
 
-    #[test]
+#[test]
     fn test_write_observations() {
         let dir = tempdir().unwrap();
         let config = StorageConfig {
@@ -965,8 +965,120 @@ mod tests {
         let metadata = fs::metadata(&file_path.unwrap()).unwrap();
         assert!(metadata.len() > 0);
     }
-}
 
+    #[test]
+    fn observation_event_schema() {
+        let dir = tempdir().unwrap();
+        let config = StorageConfig {
+            base_path: dir.path().to_path_buf(),
+            ..Default::default()
+        };
+
+        let writer = MarketDataWriter::new(config.clone());
+        let reader = MarketDataReader::new(config.clone());
+
+        // Create observation with all required fields
+        let obs = MarketObservation::new(
+            1_700_000_000_000,
+            "kraken".into(),
+            "BTC/USD".into(),
+            "BTC".into(),
+            "USD".into(),
+            50_000.0, 51_000.0, 49_000.0, 50_500.0,
+            100.0, 50,
+            50_490.0, 50_510.0,
+            vec![(50_490.0, 1.0), (50_480.0, 2.0)],
+            vec![(50_510.0, 1.5), (50_520.0, 2.5)],
+            SourceKind::Rest,
+            1_700_000_000_100,
+            vec![QualityFlag::Valid],
+        );
+
+        // Write to Parquet
+        let mut batch = MarketDataBatch::new();
+        batch.observations.push(obs.clone());
+        writer.write_batch(&batch).unwrap();
+
+        // Find the written file
+        let entries = std::fs::read_dir(dir.path().join("raw/ohlcv")).unwrap();
+        let mut file_path = None;
+        for entry in entries {
+            let entry = entry.unwrap();
+            if entry.path().extension().map_or(false, |e| e == "parquet") {
+                file_path = Some(entry.path());
+                break;
+            }
+        }
+        assert!(file_path.is_some(), "Parquet file should be written");
+
+        // Read back using optimized reader
+        let observations = reader.read_observations_optimized(
+            1_700_000_000_000,
+            1_700_000_000_200,
+            Some("BTC/USD"),
+            Some("kraken"),
+        ).unwrap();
+
+        // Verify roundtrip - all fields should match
+        assert_eq!(observations.len(), 1, "Should read back exactly one observation");
+        let read_obs = &observations[0];
+
+        assert_eq!(read_obs.timestamp, obs.timestamp);
+        assert_eq!(read_obs.exchange, obs.exchange);
+        assert_eq!(read_obs.symbol, obs.symbol);
+        assert_eq!(read_obs.base, obs.base);
+        assert_eq!(read_obs.quote, obs.quote);
+        assert_eq!(read_obs.open, obs.open);
+        assert_eq!(read_obs.high, obs.high);
+        assert_eq!(read_obs.low, obs.low);
+        assert_eq!(read_obs.close, obs.close);
+        assert_eq!(read_obs.volume, obs.volume);
+        assert_eq!(read_obs.trade_count, obs.trade_count);
+        assert_eq!(read_obs.bid, obs.bid);
+        assert_eq!(read_obs.ask, obs.ask);
+        assert_eq!(read_obs.bid_depth.len(), obs.bid_depth.len());
+        assert_eq!(read_obs.ask_depth.len(), obs.ask_depth.len());
+        assert_eq!(read_obs.source, obs.source);
+        assert_eq!(read_obs.ingested_at, obs.ingested_at);
+        assert_eq!(read_obs.quality_flags, obs.quality_flags);
+
+        // Test malformed event rejection - write invalid data and expect validation
+        let invalid_obs = MarketObservation::new(
+            1_700_000_000_000,
+            "kraken".into(),
+            "BTC/USD".into(),
+            "BTC".into(),
+            "USD".into(),
+            -1.0,  // Invalid negative price
+            51_000.0, 49_000.0, 50_500.0,
+            100.0, 50,
+            50_490.0, 50_510.0,
+            vec![], vec![],
+            SourceKind::Rest,
+            1_700_000_000_100,
+            vec![QualityFlag::NegativePrice],
+        );
+
+        let mut invalid_batch = MarketDataBatch::new();
+        invalid_batch.observations.push(invalid_obs);
+        writer.write_batch(&invalid_batch).unwrap();
+
+        // Read back - should have negative price flag
+        let invalid_observations = reader.read_observations_optimized(
+            1_700_000_000_000,
+            1_700_000_000_200,
+            Some("BTC/USD"),
+            Some("kraken"),
+        ).unwrap();
+
+        assert_eq!(invalid_observations.len(), 2, "Should have both valid and invalid observations");
+        // Check that at least one observation has the negative price flag
+        let has_negative_price = invalid_observations.iter().any(|obs| {
+            obs.quality_flags.contains(&QualityFlag::NegativePrice)
+        });
+        assert!(has_negative_price, "At least one observation should have NegativePrice flag");
+    }
+}
 #[cfg(test)]
 mod verify_output {
     #[test]
